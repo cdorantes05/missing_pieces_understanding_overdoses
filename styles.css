@@ -161,3 +161,15 @@
     ry: 3;
   }
   
+
+  .overdose-filter-btn:hover {
+  transform: translateY(-2px);
+}
+
+.overdose-filter-btn:active {
+  transform: translateY(0);
+}
+
+.drug-bubble {
+  transition: opacity 0.2s;
+}

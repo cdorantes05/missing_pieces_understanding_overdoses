@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lives Lost Visualization - Test</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background-color: #0a0a0a;
+            color: #fff;
+            overflow-x: hidden;
+        }
+        
+        #container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            font-size: 14px;
+            font-weight: 300;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 30px;
+            color: #999;
+        }
+        
+        #stats {
+            margin-bottom: 40px;
+        }
+        
+        .stat {
+            display: inline-block;
+            margin-right: 40px;
+        }
+        
+        .stat-number {
+            font-size: 48px;
+            font-weight: 300;
+            color: #ff6b35;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+            letter-spacing: 1px;
+        }
+        
+        #tooltip {
+            position: absolute;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.9);
+            border: 1px solid #ff6b35;
+            border-radius: 4px;
+            pointer-events: none;
+            opacity: 0;
+            font-size: 12px;
+            transition: opacity 0.2s;
+        }
+        
+        .arc-lived {
+            fill: none;
+            stroke: #ff6b35;
+            stroke-width: 2;
+            opacity: 0.8;
+        }
+        
+        .arc-stolen {
+            fill: none;
+            stroke: #444;
+            stroke-width: 2;
+            opacity: 0.5;
+            stroke-dasharray: 2,2;
+        }
+        
+        .arc-group:hover .arc-lived {
+            stroke: #ff8c5a;
+            stroke-width: 3;
+            opacity: 1;
+        }
+        
+        .arc-group:hover .arc-stolen {
+            stroke: #666;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <h1>Lives Lost to Gun Violence (Sample Data)</h1>
+        <div id="stats">
+            <div class="stat">
+                <div class="stat-number" id="people-killed">0</div>
+                <div class="stat-label">PEOPLE KILLED</div>
+            </div>
+            <div class="stat">
+                <div class="stat-number" id="stolen-years">0</div>
+                <div class="stat-label">STOLEN YEARS</div>
+            </div>
+        </div>
+        <svg id="visualization"></svg>
+    </div>
+    <div id="tooltip"></div>
+
+    <script>
+        // Wait for DOM to be fully loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded, starting visualization...');
+            console.log('D3 version:', d3.version);
+            
+            // Configuration
+            const width = 1200;
+            const height = 800;
+            const arcHeight = 15;
+            const arcSpacing = 5;
+            const expectedLifespan = 78; // Average life expectancy in years
+
+            // Generate sample data (replace with real data)
+            function generateSampleData(count) {
+                const data = [];
+                for (let i = 0; i < count; i++) {
+                    // Random ages weighted toward younger ages for realism
+                    const ageAtDeath = Math.floor(Math.random() * 70) + 5;
+                    data.push({
+                        id: i,
+                        age: ageAtDeath,
+                        expectedAge: expectedLifespan,
+                        stolenYears: expectedLifespan - ageAtDeath
+                    });
+                }
+                return data.sort((a, b) => a.age - b.age);
+            }
+
+            const data = generateSampleData(200);
+            console.log('Generated data:', data.length, 'entries');
+
+            // Calculate total stolen years
+            const totalStolenYears = data.reduce((sum, d) => sum + d.stolenYears, 0);
+            console.log('Total stolen years:', totalStolenYears);
+
+            // Setup SVG
+            const svg = d3.select('#visualization')
+                .attr('width', width)
+                .attr('height', height);
+            
+            console.log('SVG element:', svg.node());
+            console.log('SVG dimensions:', width, 'x', height);
+
+            // Scale for arc width (years to pixels)
+            const xScale = d3.scaleLinear()
+                .domain([0, expectedLifespan])
+                .range([0, width - 100]);
+
+            // Create arc generator
+            function createArc(years, radius) {
+                const arcWidth = xScale(years);
+                const path = d3.path();
+                
+                // Create a semi-circular arc
+                const startX = 50;
+                const startY = 0;
+                const endX = startX + arcWidth;
+                
+                // Control point for bezier curve (creates the arc)
+                const controlY = -radius;
+                
+                path.moveTo(startX, startY);
+                path.quadraticCurveTo(startX + arcWidth / 2, controlY, endX, startY);
+                
+                return path.toString();
+            }
+
+            // Create groups for each person
+            const arcGroups = svg.selectAll('.arc-group')
+                .data(data)
+                .join('g')
+                .attr('class', 'arc-group')
+                .attr('transform', (d, i) => {
+                    const row = Math.floor(i / 5);
+                    const col = i % 5;
+                    const x = col * (width / 5);
+                    const y = row * (arcHeight + arcSpacing) + 50;
+                    return `translate(${x}, ${y})`;
+                });
+            
+            console.log('Created arc groups:', arcGroups.size());
+
+            // Add stolen years arc (background - gray dashed)
+            arcGroups.append('path')
+                .attr('class', 'arc-stolen')
+                .attr('d', d => createArc(d.expectedAge, 30))
+                .attr('opacity', 0)
+                .transition()
+                .duration(1000)
+                .delay((d, i) => i * 10)
+                .attr('opacity', 0.5);
+
+            // Add lived years arc (foreground - orange)
+            arcGroups.append('path')
+                .attr('class', 'arc-lived')
+                .attr('d', d => createArc(0, 30))
+                .attr('opacity', 0)
+                .transition()
+                .duration(1000)
+                .delay((d, i) => i * 10)
+                .attr('d', d => createArc(d.age, 30))
+                .attr('opacity', 0.8);
+
+            // Tooltip interaction
+            const tooltip = d3.select('#tooltip');
+
+            arcGroups
+                .on('mouseover', function(event, d) {
+                    tooltip
+                        .style('opacity', 1)
+                        .html(`
+                            <strong>Age at death:</strong> ${d.age}<br>
+                            <strong>Expected age:</strong> ${d.expectedAge}<br>
+                            <strong>Years stolen:</strong> ${d.stolenYears}
+                        `);
+                })
+                .on('mousemove', function(event) {
+                    tooltip
+                        .style('left', (event.pageX + 10) + 'px')
+                        .style('top', (event.pageY - 10) + 'px');
+                })
+                .on('mouseout', function() {
+                    tooltip.style('opacity', 0);
+                });
+
+            // Animate statistics
+            function animateNumber(selector, target) {
+                d3.select(selector)
+                    .transition()
+                    .duration(2000)
+                    .tween('text', function() {
+                        const interpolator = d3.interpolateNumber(0, target);
+                        return function(t) {
+                            this.textContent = Math.round(interpolator(t)).toLocaleString();
+                        };
+                    });
+            }
+
+            setTimeout(() => {
+                animateNumber('#people-killed', data.length);
+                animateNumber('#stolen-years', totalStolenYears);
+            }, 500);
+            
+        });
+    </script>
+</body>
+</html>

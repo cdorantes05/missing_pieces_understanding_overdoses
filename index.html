@@ -28,6 +28,31 @@
       </div>
     </section>
 
+
+
+    <section class="section" id="section2b">
+      <div class="content">
+        <h1>Contextualizing the Crisis</h1>
+        <p>Brief overview of global overdose trends, highlighting key regions with significant increases.</p>
+      </div>
+      <div id="container">
+            <h1>Lives Lost to Gun Violence (Sample Data)</h1>
+            <div id="stats">
+                <div class="stat">
+                    <div class="stat-number" id="people-killed">0</div>
+                    <div class="stat-label">PEOPLE KILLED</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number" id="stolen-years">0</div>
+                    <div class="stat-label">STOLEN YEARS</div>
+                </div>
+            </div>
+            <svg id="visualization"></svg>
+        </div>
+        <div id="tooltip"></div>
+         <script src="#"></script>
+    </section>
+
     <!-- RISING INSIGHTS -->
     <section class="section" id="section3">
         <div class="content">
@@ -40,6 +65,35 @@
         <script src="visualizations/us-choropleth/us-overdose-map.js"></script>
       </section>
       
+
+<section class="section" id="section3b">
+  <div class="content">
+    <h1>Substances Driving the Crisis</h1>
+    <p>Each circle represents a drug, sized by its contribution to overdose deaths. Hover to learn more about each substance.</p>
+    
+    <!-- Filter Buttons -->
+    <div style="text-align: center; margin: 20px 0;">
+      <button class="overdose-filter-btn active" data-filter="fatal" 
+              style="padding: 12px 30px; margin: 0 10px; font-size: 12px; 
+                     font-weight: bold; border: none; border-radius: 25px; 
+                     cursor: pointer; background-color: #DC143C; color: white;
+                     transition: all 0.3s ease; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
+        Fatal Overdoses
+      </button>
+      <button class="overdose-filter-btn" data-filter="nonfatal" 
+              style="padding: 12px 30px; margin: 0 10px; font-size: 12px; 
+                     font-weight: bold; border: none; border-radius: 25px; 
+                     cursor: pointer; background-color: #666; color: white;
+                     transition: all 0.3s ease; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
+        Nonfatal Overdoses
+      </button>
+    </div>
+  </div>
+
+  <div id="drug-bubble-chart" style="width: 100%; display: flex; justify-content: center; align-items: center; flex-direction: column;"></div>
+  <!-- Load the bubble chart visualization -->
+  <script src="visualizations/drug-types-bubbles/drug-bubble-chart.js"></script>
+</section>
 
     <section class="section" id="section4">
       <div class="content">
