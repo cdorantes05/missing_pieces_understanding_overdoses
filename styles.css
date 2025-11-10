@@ -226,4 +226,46 @@
   background: rgba(255,255,255,1);
 }
 
+/* Naloxone Flex Wrapper */
+#naloxone-flex {
+  width: 100%;
+  height: 75vh; /* <— ensures space inside section */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 3rem;
+  margin-top: 2rem;
+  position: relative;
+}
+
+/* Each chart gets sizing */
+#naloxone-bar svg,
+#naloxone-line svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* Ensure each side has room */
+#naloxone-bar, #naloxone-line {
+  flex: 1;
+  min-width: 450px;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* The big fading year overlay */
+#naloxoneYearOverlay {
+  position: absolute;
+  top: 0.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 4rem;
+  font-weight: 800;
+  color: rgba(255,255,255,0.18);
+  pointer-events: none;
+  z-index: 5;
+}
+
 

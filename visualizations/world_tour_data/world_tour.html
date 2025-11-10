@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>World Tour Globe (Autoplay, Transparent)</title>
+<style>
+  :root {
+    --fg: #ffffff;       /* text color for dark/photo backgrounds */
+    --muted: #bbbbbb;
+    --accent: #e60000;   /* red highlight */
+  }
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: transparent;
+    color: var(--fg);
+    font-family: system-ui, sans-serif;
+    overflow: hidden;
+  }
+
+  svg {
+    width: 100%;
+    height: 100vh; /* take up available viewport height */
+    display: block;
+    background: transparent;
+  }
+
+  .country {
+    fill: #474747;
+    stroke: #2a2a2a;
+    stroke-width: 0.4;
+    transition: fill 0.3s ease;
+  }
+  .country.visible {
+    fill: var(--accent);
+  }
+
+  .graticule {
+    fill: none;
+    stroke: #666;
+    stroke-opacity: 0.35;
+    stroke-width: 0.5;
+  }
+
+  .sphere {
+    fill: transparent;
+    stroke: #666;
+  }
+
+  .label {
+    font-size: 14px;
+    fill: var(--fg);
+    paint-order: stroke;
+    stroke: rgba(0,0,0,0.7);
+    stroke-width: 3px;
+    opacity: 0;
+    transition: opacity 0.5s;
+  }
+  .label.visible {
+    opacity: 1;
+  }
+
+  .tooltip {
+    position: fixed;
+    pointer-events: none;
+    background: rgba(0,0,0,0.7);
+    color: #fff;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 13px;
+    display: none;
+  }
+</style>
+</head>
+<body>
+  <svg id="globe" viewBox="0 0 840 600"></svg>
+  <div class="tooltip" id="tooltip"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+  <script src="https://cdn.jsdelivr.net/npm/topojson-client@3"></script>
+
+  <script>
+  // === Your Top 10 Data ===
+//   const top10 = [
+//     { name: "Country A", overdoseRate: 42.3, lon: -77.04, lat: 38.90 },
+//     { name: "Country B", overdoseRate: 39.1, lon: -3.70, lat: 40.42 },
+//     { name: "Country C", overdoseRate: 37.8, lon: 2.35, lat: 48.86 },
+//     { name: "Country D", overdoseRate: 35.9, lon: 13.41, lat: 52.52 },
+//     { name: "Country E", overdoseRate: 33.4, lon: 139.69, lat: 35.68 },
+//     { name: "Country F", overdoseRate: 32.2, lon: -58.38, lat: -34.61 },
+//     { name: "Country G", overdoseRate: 31.8, lon: -46.63, lat: -23.55 },
+//     { name: "Country H", overdoseRate: 30.7, lon: 151.21, lat: -33.87 },
+//     { name: "Country I", overdoseRate: 29.5, lon: 37.62,  lat: 55.75 },
+//     { name: "Country J", overdoseRate: 28.2, lon: 116.40, lat: 39.90 }
+//   ];
+
+const top10 = [
+  { name: "United States", overdoseRate: 324.0, lon: -98.58, lat: 39.83 },
+  { name: "Puerto Rico", overdoseRate: 246.0, lon: -66.11, lat: 18.43 },
+  { name: "UK (Scotland)", overdoseRate: 219.0, lon: -3.19, lat: 55.95 },
+  { name: "Canada", overdoseRate: 193.0, lon: -75.69, lat: 45.42 },
+  { name: "UK (Wales)", overdoseRate: 102.0, lon: -3.18, lat: 51.48 },
+  { name: "Iceland", overdoseRate: 93.0, lon: -21.94, lat: 64.14 },
+  { name: "Sweden", overdoseRate: 82.0, lon: 18.06, lat: 59.33 },
+  { name: "UK (N. Ireland)", overdoseRate: 81.0, lon: -5.93, lat: 54.60 },
+  { name: "UK (England)", overdoseRate: 80.0, lon: -0.13, lat: 51.51 },
+  { name: "Finland", overdoseRate: 71.0, lon: 24.94, lat: 60.17 }
+];
+
+  // === Setup ===
+  const svg = d3.select("#globe");
+  const width = 840, height = 600;
+
+  const gSphere = svg.append("g");
+  const gGraticule = svg.append("g");
+  const gCountries = svg.append("g");
+  const gLabels = svg.append("g");
+
+  const projection = d3.geoOrthographic()
+      .fitExtent([[10,10],[width-10,height-10]], {type:"Sphere"})
+      .clipAngle(90);
+
+  // Zoom out slightly
+  const GLOBE_SCALE = 0.85;
+  projection.scale(projection.scale() * GLOBE_SCALE);
+
+  const path = d3.geoPath(projection);
+  const graticule = d3.geoGraticule10();
+
+  gSphere.append("path").attr("class","sphere").attr("d", path({type:"Sphere"}));
+  gGraticule.append("path").attr("class","graticule").attr("d", path(graticule));
+
+  const tooltip = document.getElementById("tooltip");
+  function showTooltip(html, x, y) {
+    tooltip.style.display = "block";
+    tooltip.style.left = (x + 12) + "px";
+    tooltip.style.top = (y + 12) + "px";
+    tooltip.innerHTML = html;
+  }
+  function hideTooltip() { tooltip.style.display = "none"; }
+
+  let iCurrent = 0;
+  let currentTransition = null;
+  let timerHold = null;
+  let countriesPath, labelSel;
+
+  // Smooth rotation
+  function flyTo(lon, lat, duration = 1800) {
+    return new Promise(resolve => {
+      if (currentTransition) currentTransition.end();
+      const r0 = projection.rotate();
+      const r1 = [-lon, -lat, 0];
+
+      const tweenObj = { t: 0 };
+      currentTransition = d3.select(tweenObj).transition()
+        .duration(duration)
+        .tween("rotate", () => {
+          const i = d3.interpolate(r0, r1);
+          return t => {
+            projection.rotate(i(t));
+            redraw();
+          };
+        })
+        .on("end", () => { currentTransition = null; resolve(); })
+        .on("interrupt", () => { currentTransition = null; resolve(); });
+    });
+  }
+
+  function redraw() {
+    countriesPath.attr("d", path);
+    gGraticule.select("path").attr("d", path(graticule));
+    updateLabels();
+  }
+
+  function updateLabels() {
+    labelSel.attr("transform", d => {
+      const p = projection([d.lon, d.lat]);
+      return p ? `translate(${p[0]},${p[1]})` : "translate(-999,-999)";
+    });
+  }
+
+  function flyThenQueue() {
+    const {lon, lat} = top10[iCurrent];
+    flyTo(lon, lat).then(() => {
+      highlightCountry();
+      timerHold = setTimeout(() => {
+        iCurrent = (iCurrent + 1) % top10.length;
+        flyThenQueue();
+      }, 1500);
+    });
+  }
+
+  function highlightCountry() {
+    if (!countriesPath) return;
+    countriesPath.classed("visible", false);
+    labelSel.classed("visible", false);
+
+    const target = top10[iCurrent];
+    let nearest = null, nearestDist = Infinity;
+    countriesPath.each(function(d) {
+      const c = d3.geoCentroid(d);
+      const dist = d3.geoDistance(c, [target.lon, target.lat]);
+      if (dist < nearestDist) { nearestDist = dist; nearest = this; }
+    });
+    if (nearest) d3.select(nearest).classed("visible", true);
+    labelSel.filter((d, i) => i === iCurrent).classed("visible", true);
+  }
+
+  fetch("https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json")
+    .then(r => r.json())
+    .then(world => {
+      const countries = topojson.feature(world, world.objects.countries);
+      countriesPath = gCountries.selectAll("path.country")
+        .data(countries.features)
+        .join("path")
+        .attr("class","country")
+        .attr("d", path)
+        .on("mousemove", (event, d) => showTooltip(d.properties?.name || "Country", event.clientX, event.clientY))
+        .on("mouseleave", hideTooltip);
+
+      labelSel = gLabels.selectAll("text.label")
+        .data(top10)
+        .join("text")
+        .attr("class","label")
+        .attr("text-anchor", "middle")
+        .attr("dy", -6)
+        .text(d => `${d.name} (${d.overdoseRate})`);
+
+      updateLabels();
+      highlightCountry();
+      flyThenQueue(); // autoplay
+    });
+
+  const ro = new ResizeObserver(() => redraw());
+  ro.observe(svg.node());
+  </script>
+</body>
+</html>
