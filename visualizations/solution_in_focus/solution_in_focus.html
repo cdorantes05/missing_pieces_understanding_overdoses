@@ -33,9 +33,13 @@
     .footer { display:flex; align-items:center; justify-content:space-between; padding: 8px 12px; border-top: 1px solid #1e1e1e; color: var(--muted)}
     .legend { display:flex; align-items:center; gap:12px }
     .legend .chip { width: 10px; height: 10px; border-radius: 999px; display:inline-block; }
-    .tip { position: absolute; pointer-events: none; background: #0e0e0e; color: var(--base); border: 1px solid #222; padding: 8px 10px; border-radius: 10px; font-size: 12px; box-shadow: 0 6px 18px rgba(0,0,0,.35); opacity: 0; transform: translate(-50%, -140%); transition: opacity .15s ease; max-width: 260px; }
-    .tip .name { font-weight: 700; color: var(--accent-2); }
-    .tip .metric { color: var(--accent); font-weight: 700; }
+    .tip { position: absolute; pointer-events: none; background: #0e0e0e; color: var(--base); border: 1px solid #222; padding: 12px 14px; border-radius: 12px; font-size: 13px; box-shadow: 0 8px 24px rgba(0,0,0,.4); opacity: 0; transform: translate(-50%, -100%); transition: opacity .2s ease; max-width: 320px; line-height: 1.4; }
+    .tip .name { font-weight: 700; color: var(--accent-2); font-size: 14px; margin-bottom: 4px; }
+    .tip .city { color: var(--muted); font-size: 12px; margin-bottom: 6px; }
+    .tip .metric { color: var(--accent); font-weight: 700; margin-bottom: 6px; }
+    .tip .blurb { color: var(--base); font-size: 12px; }
+    .tip .efforts { margin-top: 8px; padding-top: 8px; border-top: 1px solid #222; }
+    .tip .efforts-title { color: var(--accent-2); font-weight: 600; font-size: 12px; margin-bottom: 4px; }
   </style>
 </head>
 <body>
@@ -105,16 +109,73 @@
     d3.select('#resetBtn').on('click', resetView);
     const US_TOPO = 'https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json';
     const communitySites = [
-      { id: 'oh-dayton', name: 'County CARE Coalition', city: 'Dayton, OH', lon: -84.1916, lat: 39.7589, metric: 'Naloxone +45%', blurb: 'Door-to-door naloxone training with barbershops + libraries.' },
-      { id: 'ma-boston', name: 'Bridge to Care', city: 'Boston, MA', lon: -71.0589, lat: 42.3601, metric: 'OD deaths −15%', blurb: '24/7 naloxone lockers + community responders.' },
-      { id: 'wa-seattle', name: 'Peer Connect', city: 'Seattle, WA', lon: -122.3321, lat: 47.6062, metric: 'Reversals 500+', blurb: 'Peer-led outreach at transit hubs.' },
-      { id: 'ca-losangeles', name: 'LA Hope Initiative', city: 'Los Angeles, CA', lon: -118.2437, lat: 34.0522, metric: 'Naloxone +60%', blurb: 'Pop-up community workshops in local shelters.' },
-      { id: 'tx-austin', name: 'SafeStart TX', city: 'Austin, TX', lon: -97.7431, lat: 30.2672, metric: 'OD deaths −10%', blurb: 'High school harm reduction education and outreach.' },
-      { id: 'il-chicago', name: 'Recovery Link', city: 'Chicago, IL', lon: -87.6298, lat: 41.8781, metric: 'Reversals 800+', blurb: 'Partnership with local pharmacies for free naloxone.' },
-      { id: 'fl-miami', name: 'Sunshine Support', city: 'Miami, FL', lon: -80.1918, lat: 25.7617, metric: 'OD deaths −20%', blurb: 'Mobile van outreach across neighborhoods.' },
-      { id: 'co-denver', name: 'Mile High Care', city: 'Denver, CO', lon: -104.9903, lat: 39.7392, metric: 'Reversals 200+', blurb: 'Community events focused on overdose awareness.' },
-      { id: 'ny-newyork', name: 'Harbor Healing', city: 'New York, NY', lon: -74.006, lat: 40.7128, metric: 'Naloxone +80%', blurb: 'City-wide training initiative and resource hubs.' },
-      { id: 'ga-atlanta', name: 'Georgia Connect', city: 'Atlanta, GA', lon: -84.388, lat: 33.749, metric: 'OD deaths −12%', blurb: 'Collaboration with universities for awareness campaigns.' }
+      { id: 'oh-dayton', name: 'County CARE Coalition', city: 'Dayton, OH', lon: -84.1916, lat: 39.7589, metric: 'Naloxone +45%', blurb: 'Door-to-door naloxone training with barbershops + libraries.', efforts: 'Training 200+ community members monthly, partnering with 15 local barbershops and 8 libraries for naloxone distribution and education.' },
+      { id: 'ma-boston', name: 'Bridge to Care', city: 'Boston, MA', lon: -71.0589, lat: 42.3601, metric: 'OD deaths −15%', blurb: '24/7 naloxone lockers + community responders.', efforts: 'Installed 50 naloxone lockers citywide, trained 300 community responders, providing 24/7 emergency response coordination.' },
+      { id: 'wa-seattle', name: "People’s Harm Reduction Alliance (PHRA)", city: 'Seattle, WA', lon: -122.3321, lat: 47.6062, metric: '54,000+ naloxone kits (state mail program)', blurb: 'Peer-led outreach + statewide mail-order naloxone for WA DOH.', efforts: 'Manages WA’s mail-order naloxone; provides syringe services, trainings, and community outreach.'},
+
+      { id: 'ca-losangeles',
+        name: 'Homeless Health Care Los Angeles — Center for Harm Reduction (HHCLA)',
+        city: 'Los Angeles, CA', lon: -118.2437, lat: 34.0522,
+        metric: 'County OEND + daily outreach (LA County)',
+        blurb: 'Large community harm-reduction hub with naloxone and syringe services.',
+        efforts: 'Naloxone distribution, overdose prevention training, drop-in services, linkage to housing and care.'
+      },
+
+      { id: 'tx-austin',
+        name: 'Texas Harm Reduction Alliance (THRA) — Austin/Travis partnership',
+        city: 'Austin, TX', lon: -97.7431, lat: 30.2672,
+        metric: 'OD deaths −22% in 2024 (countywide)',
+        blurb: 'Street outreach + naloxone with city/county partners.',
+        efforts: 'Peer support, naloxone distribution, education; part of Austin Public Health’s overdose response hub.'
+      },
+
+      { id: 'il-chicago',
+        name: 'Chicago Recovery Alliance (CRA)',
+        city: 'Chicago, IL', lon: -87.6298, lat: 41.8781,
+        metric: '200+ drug samples checked in 2024 (city program)',
+        blurb: 'Pioneer of community naloxone + mobile outreach.',
+        efforts: 'Naloxone training/distribution, drug checking with CDPH-funded network, daily van outreach.'
+      },
+
+      { id: 'fl-miami',
+        name: 'IDEA Exchange Miami (Univ. of Miami)',
+        city: 'Miami, FL', lon: -80.1918, lat: 25.7617,
+        metric: 'Up to 10,000 syringes exchanged weekly',
+        blurb: 'Syringe services + free naloxone and FTS; fixed and mobile sites.',
+        efforts: '3 fixed + 5 mobile sites; anonymous services, HIV/HCV testing, wound care, naloxone distribution.'
+      },
+
+      { id: 'co-denver',
+        name: 'Harm Reduction Action Center (HRAC)',
+        city: 'Denver, CO', lon: -104.9903, lat: 39.7392,
+        metric: '7,284 naloxone doses supplied (one year)',
+        blurb: 'Denver’s main harm-reduction drop-in and outreach program.',
+        efforts: 'Daily syringe access, naloxone distribution, community trainings; city overdose prevention partner.'
+      },
+
+      { id: 'ny-newyork',
+        name: 'OnPoint NYC — Overdose Prevention Centers',
+        city: 'New York, NY', lon: -74.0060, lat: 40.7128,
+        metric: '1,700+ overdose reversals since 2021',
+        blurb: 'Supervised consumption with medical monitoring and wraparound care.',
+        efforts: 'Two OPCs (East Harlem/Washington Heights), on-site responses, care navigation, street outreach.'
+      },
+
+      { id: 'ga-atlanta',
+        name: 'Georgia Harm Reduction Coalition (GHRC)',
+        city: 'Atlanta, GA', lon: -84.3880, lat: 33.7490,
+        metric: '4 SSP sites + mail naloxone',
+        blurb: 'Metro Atlanta syringe services and overdose prevention.',
+        efforts: 'Multiple locations; naloxone shipping via Dan Bigg Distribution Center; community outreach and FTS.'
+      },
+
+      { id: 'co-denver-city',
+        name: 'Denver Public Health & Environment — OEND Program',
+        city: 'Denver, CO', lon: -104.9903, lat: 39.7392,
+        metric: 'City OEND program active',
+        blurb: 'Municipal overdose education & naloxone distribution.',
+        efforts: 'Community trainings, naloxone access, harm-reduction education; collaborates with local venues and HRAC.'
+      }
     ];
     Promise.all([d3.json(US_TOPO)]).then(([topology]) => {
       const states = topojson.feature(topology, topology.objects.states);
@@ -132,15 +193,43 @@
           d3.selectAll('.site').classed('selected', false);
           d3.select(this).classed('selected', true);
           flyToPoint([d.lon, d.lat]);
-          tip.html(`<div class="name">${d.name}</div><div>${d.city}</div><div class="metric">${d.metric}</div><div>${d.blurb}</div>`)
-            .style('opacity', 1);
+          tip.html(`
+            <div class="name">${d.name}</div>
+            <div class="city">${d.city}</div>
+            <div class="metric">${d.metric}</div>
+            <div class="blurb">${d.blurb}</div>
+            <div class="efforts">
+              <div class="efforts-title">Community Impact:</div>
+              <div>${d.efforts}</div>
+            </div>
+          `).style('opacity', 1);
         })
         .on('mousemove', (event, d) => {
           const [x,y] = d3.pointer(event);
-          tip.style('left', x+'px').style('top', y+'px');
+          const mapRect = svg.node().getBoundingClientRect();
+          const tipRect = tip.node().getBoundingClientRect();
+          
+          let left = x;
+          let top = y - 5;
+          
+          if (left + tipRect.width > mapRect.width) left = mapRect.width - tipRect.width - 10;
+          if (left < 10) left = 10;
+          if (top < 10) top = y + 5;
+          
+          tip.style('left', left+'px').style('top', top+'px');
         })
-        .on('mouseenter', (event, d) => tip.style('opacity', 1).html(`<div class="name">${d.name}</div><div>${d.city}</div>`))
-        .on('mouseleave', () => tip.style('opacity', 0));
+        .on('mouseenter', (event, d) => {
+          tip.style('opacity', 1).html(`
+            <div class="name">${d.name}</div>
+            <div class="city">${d.city}</div>
+            <div class="metric">${d.metric}</div>
+            <div class="blurb">${d.blurb}</div>
+          `);
+        })
+        .on('mouseleave', () => {
+          if (!d3.select('.site.selected').empty()) return;
+          tip.style('opacity', 0);
+        });
       resize();
       let playing = false; let idx = 0; let timer;
       function playTour(){
