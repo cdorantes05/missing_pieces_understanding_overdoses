@@ -64,7 +64,8 @@ g.append("text")
   .attr("y", height + 40)
   .style("text-anchor", "middle")
   .style("fill", "#fff")
-  .text("Overdose Rate per 1M Population");
+  .style("font-size", "12px")
+  .text("Deaths per 1 Million Population (2022)");
 
 // Sync with globe
 let currentIndex = 0;
@@ -74,6 +75,13 @@ function highlightBar(index) {
   d3.selectAll(".bar").attr("fill", "#ff9999");
   d3.select(`#bar-${index}`).attr("fill", "#e60000");
   currentIndex = index;
+  
+  // Update country context
+  const country = overdoseData[index];
+  const contextElement = document.getElementById('country-rate');
+  if (contextElement) {
+    contextElement.textContent = `${country.overdoseRate} deaths for every 1 million people`;
+  }
 }
 
 function cycleBars() {

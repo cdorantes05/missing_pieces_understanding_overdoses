@@ -105,6 +105,7 @@
   .global-surge-right {
     flex: 1;
     display: flex;
+    flex-direction: column;
     align-items: flex-start;
     padding-top: 2rem;
   }
@@ -140,6 +141,20 @@
   
   .bar {
     transition: fill 0.3s ease;
+  }
+  
+  .country-context {
+    text-align: center;
+    margin-top: 1rem;
+    padding: 0.5rem;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+  }
+  
+  #country-rate {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #ff5555;
   }
   
   /* Responsive for Global Surge */
@@ -573,6 +588,24 @@
       font-size: 3rem;
       top: 0.5rem;
     }
+  }
+
+  /* Employment and Addiction Section */
+  #section3a {
+    padding: 2rem 1rem;
+  }
+
+  #section3a .plot-container {
+    width: 98%;
+    max-width: 2200px;
+    margin: 2rem auto 0;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 12px;
+    padding: 1rem;
+  }
+
+  #section3a .plot-container iframe {
+    border-radius: 8px;
   }
   
 
