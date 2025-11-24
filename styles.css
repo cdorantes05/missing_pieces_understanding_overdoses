@@ -632,3 +632,53 @@
     background: #e0e0e0;
   }
   
+/* ======================================================
+   FIX 1 — DRUG QUIZ (Test Your Knowledge) — HORIZONTAL
+   ====================================================== */
+
+#quiz-container { 
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 50px;
+    width: 100%;
+    margin-top: 30px;
+}
+
+#quiz-inputs {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+#pie-charts {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 40px;
+}
+
+
+/* ======================================================
+   FIX 2 — NALOXONE QUIZ — HORIZONTAL
+   ====================================================== */
+
+#naloxone-quiz-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 50px;
+    width: 100%;
+    margin-top: 40px;
+
+    /* force horizontal layout */
+    flex-wrap: nowrap !important;
+}
+
+.quiz-pie {
+    width: 240px;
+    text-align: center;
+}
