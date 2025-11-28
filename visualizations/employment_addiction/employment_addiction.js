@@ -1,350 +1,233 @@
-// Data for the visualization
-const data = [
-    { 
-        industry: "Accommodation/Food Service", 
-        users: 1, 
-        total: 5,
-        people: [
-            { name: "Maria", job: "Hotel Front Desk Clerk", drug: "Marijuana", isUser: true },
-            { name: "James", job: "Restaurant Server", drug: null, isUser: false },
-            { name: "Sarah", job: "Kitchen Manager", drug: null, isUser: false },
-            { name: "David", job: "Housekeeper", drug: null, isUser: false },
-            { name: "Emily", job: "Bartender", drug: null, isUser: false }
-        ]
-    },
-    { 
-        industry: "Arts/Entertainment/Recreation", 
-        users: 1, 
-        total: 6,
-        people: [
-            { name: "Alex", job: "Stage Technician", drug: "Cocaine", isUser: true },
-            { name: "Jordan", job: "Museum Curator", drug: null, isUser: false },
-            { name: "Taylor", job: "Fitness Instructor", drug: null, isUser: false },
-            { name: "Casey", job: "Sound Engineer", drug: null, isUser: false },
-            { name: "Morgan", job: "Event Coordinator", drug: null, isUser: false },
-            { name: "Riley", job: "Park Ranger", drug: null, isUser: false }
-        ]
-    },
-    { 
-        industry: "Construction", 
-        users: 1, 
-        total: 7,
-        people: [
-            { name: "Michael", job: "Heavy Equipment Operator", drug: "Opioids", isUser: true },
-            { name: "Robert", job: "Construction Foreman", drug: null, isUser: false },
-            { name: "Alexa", job: "Carpenter", drug: null, isUser: false },
-            { name: "John", job: "Electrician", drug: null, isUser: false },
-            { name: "Danielle", job: "Plumber", drug: null, isUser: false },
-            { name: "Matthew", job: "Welder", drug: null, isUser: false },
-            { name: "Olivia", job: "Roofer", drug: null, isUser: false }
-        ]
-    },
-    { 
-        industry: "Fishing, Farming, Forestry", 
-        users: 1, 
-        total: 8,
-        people: [
-            { name: "Thomas", job: "Commercial Fisherman", drug: "Methamphetamine", isUser: true },
-            { name: "Christina", job: "Farm Manager", drug: null, isUser: false },
-            { name: "Harper", job: "Agricultural Worker", drug: null, isUser: false },
-            { name: "Joshua", job: "Livestock Handler", drug: null, isUser: false },
-            { name: "Ava", job: "Forest Logger", drug: null, isUser: false },
-            { name: "Brandon", job: "Tractor Operator", drug: null, isUser: false },
-            { name: "Elizabeth", job: "Irrigation Technician", drug: null, isUser: false },
-            { name: "Samuel", job: "Pest Control Specialist", drug: null, isUser: false }
-        ]
-    },
-    { 
-        industry: "Healthcare (support roles)", 
-        users: 1, 
-        total: 10,
-        people: [
-            { name: "Jessica", job: "Medical Receptionist", drug: "Prescription Stimulants", isUser: true },
-            { name: "Theo", job: "Medical Assistant", drug: null, isUser: false },
-            { name: "Amanda", job: "Pharmacy Technician", drug: null, isUser: false },
-            { name: "Daniel", job: "Patient Transport", drug: null, isUser: false },
-            { name: "Melissa", job: "Medical Billing Specialist", drug: null, isUser: false },
-            { name: "Nicholas", job: "Environmental Services", drug: null, isUser: false },
-            { name: "Stephanie", job: "Lab Assistant", drug: null, isUser: false },
-            { name: "Robert", job: "Dietary Aide", drug: null, isUser: false },
-            { name: "Rachel", job: "Medical Records Clerk", drug: null, isUser: false },
-            { name: "Oliver", job: "Physical Therapy Aide", drug: null, isUser: false }
-        ]
-    }
-];
+// =====================
+// Inject CSS Styles
+// =====================
+const style = document.createElement("style");
+style.textContent = `
+  .icon-chart-container {
+    max-width: 100%;
+    margin: 0 auto;
+    background: transparent;
+    padding: 24px;
+    font-family: system-ui, sans-serif;
+    color: #f5f5f7;
+    overflow: visible;
+  }
 
-// Create human figure SVG
-function createFigure(isUser) {
-    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-    svg.setAttribute("viewBox", "0 0 100 180");
-    svg.classList.add("figure");
-    svg.classList.add(isUser ? "user" : "non-user");
+  .icon-chart-title {
+    display: none;
+  }
 
-    const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
-    
+  .icon-chart-subtitle {
+    margin-top: 20px;
+    margin-bottom: 0;
+    color: #c2c2d6;
+    font-size: 14px;
+    text-align: center;
+  }
+
+  svg {
+    width: 100%;
+    overflow: visible;
+  }
+
+  .row-label {
+    font-size: 28px;
+    fill: #e5e5f0;
+  }
+
+  .row-subtext {
+    font-size: 24px;
+    fill: #9ba0c7;
+  }
+
+  .person circle { fill: #6b7280; stroke: #374151; stroke-width: 1; }
+  .person rect { fill: #6b7280; stroke: #374151; stroke-width: 1; }
+
+  .person.highlight circle,
+  .person.highlight rect {
+    fill: #f59e0b;
+    stroke: #b45309;
+    stroke-width: 2;
+  }
+
+  .person { cursor: default; }
+  .tooltip {
+    position: absolute;
+    pointer-events: none;
+    padding: 8px 10px;
+    background: rgba(12, 16, 32, 0.95);
+    color: #fff;
+    border-radius: 8px;
+    font-size: 16px;
+    border: 1px solid #40476b;
+    opacity: 0;
+    transition: opacity 0.1s ease-out;
+    white-space: nowrap;
+    z-index: 10;
+  }
+`;
+document.head.appendChild(style);
+
+// =====================
+// Main D3 Visualization
+// =====================
+function renderIndustryIconsChart(targetId) {
+  const data = [
+    { industry: "Accommodation / Food Service", denominator: 5, percent: 20, ratioLabel: "1 out of 5 people" },
+    { industry: "Arts / Entertainment / Recreation", denominator: 6, percent: 16.7, ratioLabel: "1 out of 6 people" },
+    { industry: "Construction", denominator: 7, percent: 14.3, ratioLabel: "1 out of 7 people" },
+    { industry: "Fishing, Farming, Forestry", denominator: 8, percent: 12.5, ratioLabel: "1 out of 8 people" },
+    { industry: "Healthcare (support roles)", denominator: 10, percent: 10, ratioLabel: "1 out of 10 people" }
+  ];
+
+  // Create container
+  const container = document.getElementById(targetId);
+  container.classList.add("icon-chart-container");
+
+  container.innerHTML = `
+    <h1 class="icon-chart-title">Industries with Higher Reported Substance Use</h1>
+    <svg id="industryIconSvg"></svg>
+    <p class="icon-chart-subtitle">Each row shows <strong>1 person out of N</strong> workers reporting substance use.</p>
+    <div id="industryTooltip" class="tooltip"></div>
+  `;
+
+  const svg = d3.select("#industryIconSvg");
+  const tooltip = d3.select("#industryTooltip");
+
+  const margin = { top: 60, right: 320, bottom: 40, left: 440 };
+  const rowHeight = 120;
+  const width = 1800;
+  const height = margin.top + margin.bottom + rowHeight * data.length;
+
+  svg
+    .attr("viewBox", `0 0 ${width} ${height}`)
+    .attr("preserveAspectRatio", "xMidYMid meet");
+
+  const iconSize = 64;
+  const iconGap = 48;
+
+  // Create rows
+  const rows = svg.selectAll(".row")
+    .data(data)
+    .enter()
+    .append("g")
+    .attr("class", "row")
+    .attr("transform", (d, i) => `translate(0, ${margin.top + i * rowHeight})`);
+
+  // Labels
+  rows.append("text")
+    .attr("class", "row-label")
+    .attr("x", margin.left - 30)
+    .attr("y", rowHeight / 2 - 12)
+    .attr("text-anchor", "end")
+    .text(d => d.industry);
+
+  rows.append("text")
+    .attr("class", "row-subtext")
+    .attr("x", margin.left - 30)
+    .attr("y", rowHeight / 2 + 24)
+    .attr("text-anchor", "end")
+    .text(d => `${d.ratioLabel} (${d.percent}%)`);
+
+  // Draw icons
+  rows.each(function (rowData) {
+    const row = d3.select(this);
+
+    const icons = d3.range(rowData.denominator).map(i => ({
+      index: i,
+      highlighted: i === rowData.denominator - 1,
+      parent: rowData
+    }));
+
+    const groups = row.selectAll(".person")
+      .data(icons)
+      .enter()
+      .append("g")
+      .attr("class", d => "person" + (d.highlighted ? " highlight" : ""))
+      .attr("transform", d => {
+        const x = margin.left + d.index * (iconSize + iconGap);
+        const y = rowHeight / 2 - iconSize / 2;
+        return `translate(${x}, ${y})`;
+      })
+      .on("mouseover", (event, d) => {
+        tooltip.style("opacity", 1)
+          .html(
+            d.highlighted
+              ? `${d.parent.industry}: ${d.parent.ratioLabel} (${d.parent.percent}%)`
+              : `Other workers in ${d.parent.industry}`
+          )
+          .style("left", event.pageX + 12 + "px")
+          .style("top", event.pageY - 28 + "px");
+      })
+      .on("mousemove", event => {
+        tooltip.style("left", event.pageX + 12 + "px")
+          .style("top", event.pageY - 28 + "px");
+      })
+      .on("mouseout", () => tooltip.style("opacity", 0));
+
+    // Person icon shapes - more human-like
+    const headRadius = iconSize * 0.25;
+    const bodyWidth = iconSize * 0.4;
+    const bodyHeight = iconSize * 0.5;
+    const armWidth = iconSize * 0.12;
+    const armLength = iconSize * 0.35;
+    const legWidth = iconSize * 0.14;
+    const legLength = iconSize * 0.45;
+
     // Head
-    const head = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-    head.setAttribute("cx", "50");
-    head.setAttribute("cy", "30");
-    head.setAttribute("r", "18");
-    
-    // Torso
-    const torso = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-    torso.setAttribute("x", "35");
-    torso.setAttribute("y", "48");
-    torso.setAttribute("width", "30");
-    torso.setAttribute("height", "50");
-    torso.setAttribute("rx", "8");
-    
+    groups.append("circle")
+      .attr("cx", iconSize / 2)
+      .attr("cy", headRadius + 1)
+      .attr("r", headRadius);
+
+    // Body
+    groups.append("rect")
+      .attr("x", iconSize / 2 - bodyWidth / 2)
+      .attr("y", headRadius * 2 + 2)
+      .attr("width", bodyWidth)
+      .attr("height", bodyHeight)
+      .attr("rx", bodyWidth * 0.25);
+
     // Left arm
-    const leftArm = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-    leftArm.setAttribute("x", "23");
-    leftArm.setAttribute("y", "48");
-    leftArm.setAttribute("width", "10");
-    leftArm.setAttribute("height", "45");
-    leftArm.setAttribute("rx", "5");
-    leftArm.setAttribute("transform", "rotate(20 28 50)");
-    
+    groups.append("rect")
+      .attr("x", iconSize / 2 - bodyWidth / 2 - armWidth * 0.5)
+      .attr("y", headRadius * 2 + 3)
+      .attr("width", armWidth)
+      .attr("height", armLength)
+      .attr("rx", armWidth * 0.5)
+      .attr("transform", `rotate(20 ${iconSize / 2 - bodyWidth / 2} ${headRadius * 2 + 3})`);
+
     // Right arm
-    const rightArm = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-    rightArm.setAttribute("x", "67");
-    rightArm.setAttribute("y", "48");
-    rightArm.setAttribute("width", "10");
-    rightArm.setAttribute("height", "45");
-    rightArm.setAttribute("rx", "5");
-    rightArm.setAttribute("transform", "rotate(-20 72 50)");
-    
+    groups.append("rect")
+      .attr("x", iconSize / 2 + bodyWidth / 2 - armWidth * 0.5)
+      .attr("y", headRadius * 2 + 3)
+      .attr("width", armWidth)
+      .attr("height", armLength)
+      .attr("rx", armWidth * 0.5)
+      .attr("transform", `rotate(-20 ${iconSize / 2 + bodyWidth / 2} ${headRadius * 2 + 3})`);
+
     // Left leg
-    const leftLeg = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-    leftLeg.setAttribute("x", "38");
-    leftLeg.setAttribute("y", "98");
-    leftLeg.setAttribute("width", "12");
-    leftLeg.setAttribute("height", "70");
-    leftLeg.setAttribute("rx", "6");
-    
+    groups.append("rect")
+      .attr("x", iconSize / 2 - bodyWidth / 2 + legWidth * 0.3)
+      .attr("y", headRadius * 2 + bodyHeight + 2)
+      .attr("width", legWidth)
+      .attr("height", legLength)
+      .attr("rx", legWidth * 0.4);
+
     // Right leg
-    const rightLeg = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-    rightLeg.setAttribute("x", "50");
-    rightLeg.setAttribute("y", "98");
-    rightLeg.setAttribute("width", "12");
-    rightLeg.setAttribute("height", "70");
-    rightLeg.setAttribute("rx", "6");
-    
-    g.appendChild(leftArm);
-    g.appendChild(rightArm);
-    g.appendChild(torso);
-    g.appendChild(leftLeg);
-    g.appendChild(rightLeg);
-    g.appendChild(head);
-    
-    svg.appendChild(g);
-    return svg;
+    groups.append("rect")
+      .attr("x", iconSize / 2 + bodyWidth / 2 - legWidth * 1.3)
+      .attr("y", headRadius * 2 + bodyHeight + 2)
+      .attr("width", legWidth)
+      .attr("height", legLength)
+      .attr("rx", legWidth * 0.4);
+  });
 }
 
-// Initialize the visualization
-function initVisualization() {
-    const chart = document.getElementById("chart");
-    const tooltip = document.getElementById("tooltip");
-    
-    if (!chart || !tooltip) {
-        console.error("Required elements not found");
-        return;
-    }
-
-    // Clear existing content
-    chart.innerHTML = '';
-
-    data.forEach(item => {
-        const row = document.createElement("div");
-        row.classList.add("industry-row");
-
-        const label = document.createElement("div");
-        label.classList.add("industry-label");
-        label.textContent = item.industry;
-        
-        // Add click interaction to highlight industry
-        label.addEventListener("click", () => {
-            // Remove previous highlights
-            document.querySelectorAll('.industry-row').forEach(r => r.classList.remove('highlighted'));
-            // Add highlight to current row
-            row.classList.add('highlighted');
-        });
-
-        const figuresContainer = document.createElement("div");
-        figuresContainer.classList.add("figures-container");
-
-        item.people.forEach((person, i) => {
-            const figure = createFigure(person.isUser);
-            
-            // Add click event for mobile
-            figure.addEventListener("click", (e) => {
-                e.stopPropagation();
-                showTooltip(person, e);
-            });
-            
-            figure.addEventListener("mouseenter", (e) => {
-                showTooltip(person, e);
-            });
-
-            figure.addEventListener("mousemove", (e) => {
-                updateTooltipPosition(e);
-            });
-
-            figure.addEventListener("mouseleave", () => {
-                hideTooltip();
-            });
-
-            figuresContainer.appendChild(figure);
-        });
-
-        row.appendChild(label);
-        row.appendChild(figuresContainer);
-        chart.appendChild(row);
-    });
-
-    // Calculate and display overall stats
-    calculateStats();
-    
-    // Close tooltip when clicking outside
-    document.addEventListener("click", hideTooltip);
-}
-
-// Show tooltip with person information
-function showTooltip(person, event) {
-    const tooltip = document.getElementById("tooltip");
-    
-    let tooltipHTML = `<div class="tooltip-name">${person.name}</div>`;
-    tooltipHTML += `<div class="tooltip-job">${person.job}</div>`;
-    
-    if (person.isUser && person.drug) {
-        tooltipHTML += `<div class="tooltip-drug">Uses: ${person.drug}</div>`;
-    } else {
-        tooltipHTML += `<div>No drug use</div>`;
-    }
-    
-    tooltip.innerHTML = tooltipHTML;
-    tooltip.classList.add("show");
-    updateTooltipPosition(event);
-}
-
-// Update tooltip position
-function updateTooltipPosition(event) {
-    const tooltip = document.getElementById("tooltip");
-    tooltip.style.left = event.clientX + 15 + "px";
-    tooltip.style.top = event.clientY + 15 + "px";
-}
-
-// Hide tooltip
-function hideTooltip() {
-    const tooltip = document.getElementById("tooltip");
-    tooltip.classList.remove("show");
-}
-
-// Calculate overall statistics
-function calculateStats() {
-    const totalPeople = data.reduce((sum, item) => sum + item.total, 0);
-    const totalUsers = data.reduce((sum, item) => sum + item.users, 0);
-    const avgPercentage = ((totalUsers / totalPeople) * 100).toFixed(1);
-
-    const statsElement = document.getElementById("stats");
-    if (statsElement) {
-        statsElement.textContent = 
-            `Overall: ${totalUsers} out of ${totalPeople} employees use drugs (${avgPercentage}% average across shown industries)`;
-    }
-}
-
-// NEW FEATURES
-
-// Filter by industry
-function filterByIndustry(industryName) {
-    const rows = document.querySelectorAll('.industry-row');
-    rows.forEach(row => {
-        const label = row.querySelector('.industry-label');
-        if (industryName === 'all' || label.textContent === industryName) {
-            row.style.display = 'flex';
-        } else {
-            row.style.display = 'none';
-        }
-    });
-}
-
-// Highlight drug users
-function highlightUsers(highlight = true) {
-    const figures = document.querySelectorAll('.figure');
-    figures.forEach(figure => {
-        if (highlight && figure.classList.contains('user')) {
-            figure.style.filter = 'drop-shadow(0 0 8px rgba(251, 146, 60, 0.8))';
-        } else {
-            figure.style.filter = 'none';
-        }
-    });
-}
-
-// Animate figures on load
-function animateFigures() {
-    const figures = document.querySelectorAll('.figure');
-    figures.forEach((figure, index) => {
-        figure.style.opacity = '0';
-        figure.style.transform = 'translateY(20px)';
-        
-        setTimeout(() => {
-            figure.style.transition = 'all 0.5s ease';
-            figure.style.opacity = '1';
-            figure.style.transform = 'translateY(0)';
-        }, index * 30);
-    });
-}
-
-// Get statistics by industry
-function getIndustryStats(industryName) {
-    const industry = data.find(item => item.industry === industryName);
-    if (industry) {
-        const percentage = ((industry.users / industry.total) * 100).toFixed(1);
-        return {
-            industry: industry.industry,
-            users: industry.users,
-            total: industry.total,
-            percentage: percentage
-        };
-    }
-    return null;
-}
-
-// Get all drug types used
-function getAllDrugTypes() {
-    const drugs = new Set();
-    data.forEach(industry => {
-        industry.people.forEach(person => {
-            if (person.drug) {
-                drugs.add(person.drug);
-            }
-        });
-    });
-    return Array.from(drugs);
-}
-
-// Initialize when DOM is loaded
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
-        setTimeout(() => {
-            initVisualization();
-            setTimeout(animateFigures, 100);
-        }, 50);
-    });
-} else {
-    setTimeout(() => {
-        initVisualization();
-        setTimeout(animateFigures, 100);
-    }, 50);
-}
-
-// Export functions for external use
-window.DrugVisualization = {
-    init: initVisualization,
-    filter: filterByIndustry,
-    highlight: highlightUsers,
-    animate: animateFigures,
-    getStats: getIndustryStats,
-    getDrugs: getAllDrugTypes,
-    data: data
-};
+// =====================
+// Auto-render if #industryIcons exists
+// =====================
+document.addEventListener("DOMContentLoaded", () => {
+  const autoTarget = document.getElementById("industryIcons");
+  if (autoTarget) renderIndustryIconsChart("industryIcons");
+});
