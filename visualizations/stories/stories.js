@@ -24,7 +24,6 @@
    * @param {Array} storiesData - Array of story objects
    * @param {string} storiesData[].id - Unique identifier (e.g., 'jonathans')
    * @param {string} storiesData[].title - Story title
-   * @param {string} storiesData[].description - Short description
    * @param {string} storiesData[].image - Path to image file
    * @param {string} storiesData[].audio - Path to audio file
    * @param {Array} storiesData[].transcript - Array of {time: number, text: string}
@@ -123,11 +122,6 @@
     const title = document.createElement('h2');
     title.textContent = story.title;
     controls.appendChild(title);
-
-    const description = document.createElement('p');
-    description.className = 'story-description';
-    description.textContent = story.description;
-    controls.appendChild(description);
 
     const playBtn = document.createElement('button');
     playBtn.className = 'play-btn';
@@ -494,70 +488,6 @@
     });
   }
 
-  // ==========================================
-  //  EXPORT
-  // ==========================================
-
-  // ==========================================
-  //  DEFAULT STORY DATA (with transcripts)
-  // ==========================================
-
-  const defaultStories = [
-    {
-      id: 'jonathans',
-      title: "Jonathan's Story",
-      description: "Jonathan's mom remembers her son for who he was, not his opioid addiction.",
-      image: "data/jonathans_story.png",
-      audio: "data/jonathans_story.mp3",
-      transcript: [
-        { time: 0, text: "He was the son that any mother " },
-        { time: 3, text: "He was a son, a brother, a friend who loved music and had dreams." },
-        { time: 7, text: "His mother remembers the boy who played guitar in the garage." },
-        { time: 12, text: "She remembers his laughter, his kindness, his struggles." },
-        { time: 17, text: "The opioid crisis took Jonathan, but it didn't define him." },
-        { time: 22, text: "His story reminds us that behind every statistic is a person." },
-        { time: 27, text: "A person with a name, a family, and a life that mattered." }
-      ]
-    },
-    {
-      id: 'sofias',
-      title: "Sofia's Story",
-      description: "Narcan saved Sofia's life.",
-      image: "data/sofias_story.png",
-      audio: "data/sofias_story.mp3",
-      transcript: [
-        { time: 0, text: "I was at a party when everything went dark." },
-        { time: 4, text: "Someone had given me something, and I didn't know what it was." },
-        { time: 9, text: "My friends called 911, and paramedics arrived quickly." },
-        { time: 14, text: "They administered Narcan, and I woke up in an ambulance." },
-        { time: 19, text: "That moment changed everything for me." },
-        { time: 23, text: "I realized how close I came to losing my life." },
-        { time: 28, text: "Now I carry Narcan with me everywhere I go." },
-        { time: 33, text: "I want to be ready to help someone else, just like they helped me." }
-      ]
-    },
-    {
-      id: 'jakes',
-      title: "Jake's Story",
-      description: "Jake has been sober for a couple years now.",
-      image: "data/jakes_story.png",
-      audio: "data/jakes_story.mp3",
-      transcript: [
-        { time: 0, text: "Recovery isn't a straight line." },
-        { time: 4, text: "I've had setbacks, moments where I thought I couldn't do it." },
-        { time: 9, text: "But I kept going, one day at a time." },
-        { time: 14, text: "Support from my family and a good treatment program made all the difference." },
-        { time: 20, text: "Now I'm two years sober, and I'm rebuilding my life." },
-        { time: 25, text: "I have a job, I'm reconnecting with old friends." },
-        { time: 30, text: "Most importantly, I have hope again." },
-        { time: 35, text: "Recovery is possible, and I'm living proof of that." }
-      ]
-    }
-  ];
-
-  // ==========================================
-  //  EXPORT
-  // ==========================================
 
   // Export initStories function
   window.initStories = initStories;
