@@ -1,12 +1,12 @@
 (async function() {
   // Chart dimensions and margins - reduced height for better fit
-  const distributionWidth = 250;
-  const width = 950 + distributionWidth;
-  const height = 480;
+  const distributionWidth = 200;
+  const width = 900 + distributionWidth;
+  const height = 400;
   const marginTop = 50;
   const marginRight = 180; // increased to make room for legend outside chart
   const marginBottom = 50;
-  const marginLeft = 60 + distributionWidth;
+  const marginLeft = 80 + distributionWidth;
 
   // Load dataset
   let data = await d3.csv("data/DOSE_SyS_Dashboard_Download_10-23-2025 - Overall.csv", d => ({

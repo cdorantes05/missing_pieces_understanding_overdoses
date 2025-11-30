@@ -61,7 +61,7 @@ g.selectAll(".bar")
 
 g.append("text")
   .attr("x", width / 2)
-  .attr("y", height + 40)
+  .attr("y", height + 33)
   .style("text-anchor", "middle")
   .style("fill", "#fff")
   .style("font-size", "12px")
