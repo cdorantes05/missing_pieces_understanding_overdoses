@@ -17,6 +17,25 @@
 
 <body>
 
+    <script>
+        function createScrollTrigger(sectionId, callback, options = {}) {
+          const element = document.getElementById(sectionId);
+          if (!element) return;
+        
+          const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+              if (entry.isIntersecting) {
+                callback();             // run your chart animation
+                observer.disconnect();  // ensures it runs only once
+              }
+            });
+          }, { threshold: 0.35, ...options });
+        
+          observer.observe(element);
+        }
+        </script>
+        
+
 <div class="container">
 
   <!-- ============================================================

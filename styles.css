@@ -757,6 +757,24 @@
   }
   
 
+  /* Center the entire industry icons visualization */
+#industryIcons.icon-chart-container {
+  max-width: 1100px;       /* adjust as needed */
+  margin-left: auto;
+  margin-right: auto;
+  display: block;
+  text-align: center;      /* centers subtitle + toolbar */
+}
+
+/* Center the SVG inside the container */
+#industryIconSvg {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+
+
 /* ======================================
    NALOXONE QUIZ — UPDATED INTERACTIVE UI
    ====================================== */
@@ -781,6 +799,7 @@
     margin-top: 40px;
     flex-wrap: wrap;
   }
+
   
   /* Individual chart card */
   .quiz-pie {

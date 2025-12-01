@@ -13,16 +13,40 @@ style.textContent = `
     overflow: visible;
   }
 
-  .icon-chart-title {
-    display: none;
+  .sort-toolbar {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 18px;
+    justify-content: flex-start;
   }
 
-  .icon-chart-subtitle {
-    margin-top: 5px;
-    margin-bottom: 0;
-    color: #c2c2d6;
+  .sort-btn {
+    padding: 6px 14px;
+    border-radius: 14px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.18);
+    color: #e5e5f0;
+    cursor: pointer;
     font-size: 14px;
-    text-align: center;
+    transition: all 0.2s ease;
+  }
+
+  .sort-btn.active {
+    background: #f59e0b;
+    color: #111;
+    border-color: #fbbf24;
+    font-weight: 700;
+  }
+
+  .sort-btn:hover {
+    background: rgba(255,255,255,0.12);
+  }
+
+  .legend-text {
+    font-size: 16px;
+    color: #c2c2d6;
+    margin-left: 4px;
+    margin-bottom: 4px;
   }
 
   svg {
@@ -56,7 +80,6 @@ style.textContent = `
     50% { opacity: 0.7; transform: scale(1.05); }
   }
 
-  .person { cursor: default; }
   .tooltip {
     position: absolute;
     pointer-events: none;
@@ -78,20 +101,32 @@ document.head.appendChild(style);
 // Main D3 Visualization
 // =====================
 function renderIndustryIconsChart(targetId) {
+  // ==========================
+  // DATA — including "hours"
+  // ==========================
   const data = [
-    { industry: "Accommodation / Food Service", denominator: 5, percent: 20, ratioLabel: "1 out of 5 people" },
-    { industry: "Arts / Entertainment / Recreation", denominator: 6, percent: 16.7, ratioLabel: "1 out of 6 people" },
-    { industry: "Construction", denominator: 7, percent: 14.3, ratioLabel: "1 out of 7 people" },
-    { industry: "Fishing, Farming, Forestry", denominator: 8, percent: 12.5, ratioLabel: "1 out of 8 people" },
-    { industry: "Healthcare (support roles)", denominator: 10, percent: 10, ratioLabel: "1 out of 10 people" }
+    { industry: "Accommodation / Food Service", denominator: 5, percent: 20, ratioLabel: "1 out of 5 people", workers: 14749400, wage: 20.22, hours: 42.9 },
+    { industry: "Arts / Entertainment / Recreation", denominator: 6, percent: 16.7, ratioLabel: "1 out of 6 people", workers: 2755000, wage: 20.94, hours: 29.4 },
+    { industry: "Construction", denominator: 7, percent: 14.3, ratioLabel: "1 out of 7 people", workers: 10500000, wage: 21.78, hours: 39.8 },
+    { industry: "Fishing, Farming, Forestry", denominator: 8, percent: 12.5, ratioLabel: "1 out of 8 people", workers: 1530000, wage: 26, hours: 40 },
+    { industry: "Healthcare (support roles)", denominator: 10, percent: 10, ratioLabel: "1 out of 10 people", workers: 7060000, wage: 17.38, hours: 36.2 }
   ];
 
-  // Create container
+  // ===============
+  // HTML container
+  // ===============
   const container = document.getElementById(targetId);
   container.classList.add("icon-chart-container");
 
   container.innerHTML = `
-    <h1 class="icon-chart-title">Industries with Higher Reported Substance Use</h1>
+    <p class="legend-text">Ranking Mode:</p>
+    <div class="sort-toolbar">
+      <button class="sort-btn active" data-sort="drug">Highest Drug Use</button>
+      <button class="sort-btn" data-sort="workers">Number of Workers</button>
+      <button class="sort-btn" data-sort="wage">Average Hourly Wage</button>
+      <button class="sort-btn" data-sort="hours">Hours Worked per Week</button>
+    </div>
+
     <svg id="industryIconSvg"></svg>
     <p class="icon-chart-subtitle">Each row shows <strong>1 person out of N</strong> workers reporting substance use.</p>
     <div id="industryTooltip" class="tooltip"></div>
@@ -103,24 +138,20 @@ function renderIndustryIconsChart(targetId) {
   const margin = { top: 20, right: 320, bottom: 40, left: 440 };
   const rowHeight = 120;
   const width = 1800;
-  const height = margin.top + margin.bottom + rowHeight * data.length;
+  let height = margin.top + margin.bottom + rowHeight * data.length;
+  svg.attr("viewBox", `0 0 ${width} ${height}`);
 
-  svg
-    .attr("viewBox", `0 0 ${width} ${height}`)
-    .attr("preserveAspectRatio", "xMidYMid meet");
-
-  const iconSize = 64;
-  const iconGap = 48;
-
-  // Create rows
-  const rows = svg.selectAll(".row")
-    .data(data)
+  // =====================================
+  // INITIAL ROW DRAW
+  // =====================================
+  let rows = svg.selectAll(".row")
+    .data(data, d => d.industry)
     .enter()
     .append("g")
     .attr("class", "row")
     .attr("transform", (d, i) => `translate(0, ${margin.top + i * rowHeight})`);
 
-  // Labels
+  // ---- LABELS
   rows.append("text")
     .attr("class", "row-label")
     .attr("x", margin.left - 30)
@@ -135,7 +166,7 @@ function renderIndustryIconsChart(targetId) {
     .attr("text-anchor", "end")
     .text(d => `${d.ratioLabel} (${d.percent}%)`);
 
-  // Draw icons
+  // ---- ICONS
   rows.each(function (rowData) {
     const row = d3.select(this);
 
@@ -151,8 +182,8 @@ function renderIndustryIconsChart(targetId) {
       .append("g")
       .attr("class", d => "person" + (d.highlighted ? " highlight" : ""))
       .attr("transform", d => {
-        const x = margin.left + d.index * (iconSize + iconGap);
-        const y = rowHeight / 2 - iconSize / 2;
+        const x = margin.left + d.index * 100;
+        const y = rowHeight / 2 - 32;
         return `translate(${x}, ${y})`;
       })
       .on("mouseover", (event, d) => {
@@ -171,67 +202,62 @@ function renderIndustryIconsChart(targetId) {
       })
       .on("mouseout", () => tooltip.style("opacity", 0));
 
-    // Person icon shapes - more human-like
-    const headRadius = iconSize * 0.25;
-    const bodyWidth = iconSize * 0.4;
-    const bodyHeight = iconSize * 0.5;
-    const armWidth = iconSize * 0.12;
-    const armLength = iconSize * 0.35;
-    const legWidth = iconSize * 0.14;
-    const legLength = iconSize * 0.45;
-
-    // Head
+    // HEAD
     groups.append("circle")
-      .attr("cx", iconSize / 2)
-      .attr("cy", headRadius + 1)
-      .attr("r", headRadius);
+      .attr("cx", 32)
+      .attr("cy", 17)
+      .attr("r", 16);
 
-    // Body
+    // BODY
     groups.append("rect")
-      .attr("x", iconSize / 2 - bodyWidth / 2)
-      .attr("y", headRadius * 2 + 2)
-      .attr("width", bodyWidth)
-      .attr("height", bodyHeight)
-      .attr("rx", bodyWidth * 0.25);
-
-    // Left arm
-    groups.append("rect")
-      .attr("x", iconSize / 2 - bodyWidth / 2 - armWidth * 0.5)
-      .attr("y", headRadius * 2 + 3)
-      .attr("width", armWidth)
-      .attr("height", armLength)
-      .attr("rx", armWidth * 0.5)
-      .attr("transform", `rotate(20 ${iconSize / 2 - bodyWidth / 2} ${headRadius * 2 + 3})`);
-
-    // Right arm
-    groups.append("rect")
-      .attr("x", iconSize / 2 + bodyWidth / 2 - armWidth * 0.5)
-      .attr("y", headRadius * 2 + 3)
-      .attr("width", armWidth)
-      .attr("height", armLength)
-      .attr("rx", armWidth * 0.5)
-      .attr("transform", `rotate(-20 ${iconSize / 2 + bodyWidth / 2} ${headRadius * 2 + 3})`);
-
-    // Left leg
-    groups.append("rect")
-      .attr("x", iconSize / 2 - bodyWidth / 2 + legWidth * 0.3)
-      .attr("y", headRadius * 2 + bodyHeight + 2)
-      .attr("width", legWidth)
-      .attr("height", legLength)
-      .attr("rx", legWidth * 0.4);
-
-    // Right leg
-    groups.append("rect")
-      .attr("x", iconSize / 2 + bodyWidth / 2 - legWidth * 1.3)
-      .attr("y", headRadius * 2 + bodyHeight + 2)
-      .attr("width", legWidth)
-      .attr("height", legLength)
-      .attr("rx", legWidth * 0.4);
+      .attr("x", 20)
+      .attr("y", 34)
+      .attr("width", 24)
+      .attr("height", 30)
+      .attr("rx", 6);
   });
+
+  // ===============================
+  // SORTING LOGIC — NOW 4 OPTIONS
+  // ===============================
+  function sortRows(mode) {
+    let sorted;
+
+    if (mode === "drug") {
+      sorted = [...data].sort((a, b) => d3.descending(a.percent, b.percent));
+    } else if (mode === "workers") {
+      sorted = [...data].sort((a, b) => d3.descending(a.workers, b.workers));
+    } else if (mode === "wage") {
+      sorted = [...data].sort((a, b) => d3.descending(a.wage, b.wage));
+    } else if (mode === "hours") {
+      sorted = [...data].sort((a, b) => d3.descending(a.hours, b.hours));
+    }
+
+    rows.data(sorted, d => d.industry)
+      .transition()
+      .duration(700)
+      .attr("transform", (d, i) => `translate(0, ${margin.top + i * rowHeight})`);
+  }
+
+  // ===============================
+  // BUTTON CLICK HANDLERS
+  // ===============================
+  const buttons = container.querySelectorAll(".sort-btn");
+  buttons.forEach(btn => {
+    btn.addEventListener("click", () => {
+      buttons.forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+
+      const mode = btn.dataset.sort;
+      sortRows(mode);
+    });
+  });
+
+  sortRows("drug"); // initial state
 }
 
 // =====================
-// Auto-render if #industryIcons exists
+// Auto-render
 // =====================
 document.addEventListener("DOMContentLoaded", () => {
   const autoTarget = document.getElementById("industryIcons");
