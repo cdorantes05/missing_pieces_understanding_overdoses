@@ -872,10 +872,10 @@
 /* Solutions in Focus Layout */
 .solutions-container {
   display: flex;
-  gap: 2rem;
-  width: 90%;
-  max-width: 1400px;
-  margin-top: 2rem;
+  gap: 1.5rem;
+  width: 85%;
+  max-width: 1200px;
+  margin-top: 1.5rem;
 }
 
 .solutions-container .plot-container {
@@ -887,19 +887,21 @@
   flex: 1;
   background: rgba(255, 255, 255, 0.05);
   border-radius: 10px;
-  padding: 2rem;
+  padding: 1.5rem;
   color: white;
+  max-height: 500px;
+  overflow-y: auto;
 }
 
 .solutions-text-box h3 {
-  font-size: 1.8rem;
-  margin-bottom: 1rem;
+  font-size: 1.5rem;
+  margin-bottom: 0.8rem;
   color: #fff;
 }
 
 .solutions-text-box p {
-  font-size: 1.2rem;
-  line-height: 1.7;
+  font-size: 1.1rem;
+  line-height: 1.6;
   opacity: 0.9;
 }
 
