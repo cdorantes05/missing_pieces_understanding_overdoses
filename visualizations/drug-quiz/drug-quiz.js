@@ -1,250 +1,219 @@
-// Drug use percentage quiz with pie charts
-(function() {
-  'use strict';
+// ======================================================
+//   Drug Use Guessing Quiz — Clean/Modern D3 Version
+//   Fits the aesthetic of your overdose dashboards
+// ======================================================
+(function () {
+  "use strict";
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initQuiz);
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initQuiz);
   } else {
     initQuiz();
   }
 
   function initQuiz() {
-    console.log("Initializing pie chart quiz...");
+    console.log("Initializing updated Drug Use Quiz...");
 
-    // Actual percentages (2024 data)
-    const actualData = {
+    // =============================
+    // 1. CONSTANTS
+    // =============================
+    const actual = {
       lifetime: 52.0,
       pastYear: 25.5,
-      pastMonth: 16.7
+      pastMonth: 16.7,
     };
 
-    // Get elements
-    const lifetimeInput = document.getElementById('lifetime-guess');
-    const pastYearInput = document.getElementById('pastyear-guess');
-    const pastMonthInput = document.getElementById('pastmonth-guess');
-    const revealButton = document.getElementById('reveal-answer');
-    const tryAgainButton = document.getElementById('try-again');
-    const pieChartsContainer = d3.select('#pie-charts');
+    const charts = [
+      { id: "lifetime", title: "Lifetime Use", actual: actual.lifetime },
+      { id: "pastyear", title: "Past Year Use", actual: actual.pastYear },
+      { id: "pastmonth", title: "Past Month Use", actual: actual.pastMonth },
+    ];
+
+    // Inputs / Buttons
+    const inputs = {
+      lifetime: document.getElementById("lifetime-guess"),
+      pastyear: document.getElementById("pastyear-guess"),
+      pastmonth: document.getElementById("pastmonth-guess"),
+    };
+
+    const revealBtn = document.getElementById("reveal-answer");
+    const resetBtn = document.getElementById("try-again");
+
+    // Container
+    const pieChartsContainer = d3.select("#pie-charts");
 
     let revealed = false;
 
-    // Chart configuration
-    const chartConfig = [
-      { id: 'lifetime', title: 'Lifetime Use', input: lifetimeInput, actual: actualData.lifetime },
-      { id: 'pastyear', title: 'Past Year Use', input: pastYearInput, actual: actualData.pastYear },
-      { id: 'pastmonth', title: 'Past Month Use', input: pastMonthInput, actual: actualData.pastMonth }
-    ];
-
-    // Create pie charts
-    chartConfig.forEach(config => {
-      createPieChart(config);
-      
-      // Update pie chart on input
-      config.input.addEventListener('input', function() {
-        const value = parseFloat(this.value) || 0;
-        updatePieChart(config.id, value, config.actual, false);
+    // =============================
+    // 2. CREATE CHARTS
+    // =============================
+    charts.forEach((cfg) => {
+      createPie(cfg);
+      inputs[cfg.id].addEventListener("input", () => {
+        const val = parseFloat(inputs[cfg.id].value) || 0;
+        updatePie(cfg.id, val, cfg.actual, revealed);
       });
     });
 
-    // Reveal button
-    revealButton.addEventListener('click', function() {
-      const lifetime = parseFloat(lifetimeInput.value) || 0;
-      const pastYear = parseFloat(pastYearInput.value) || 0;
-      const pastMonth = parseFloat(pastMonthInput.value) || 0;
+    // =============================
+    // 3. BUTTON — REVEAL ANSWERS
+    // =============================
+    revealBtn.addEventListener("click", () => {
+      const guesses = {
+        lifetime: parseFloat(inputs.lifetime.value) || 0,
+        pastyear: parseFloat(inputs.pastyear.value) || 0,
+        pastmonth: parseFloat(inputs.pastmonth.value) || 0,
+      };
 
-      if (lifetime === 0 && pastYear === 0 && pastMonth === 0) {
-        alert('Please enter at least one guess!');
+      // Prevent empty submission
+      if (!guesses.lifetime && !guesses.pastyear && !guesses.pastmonth) {
+        alert("Please enter at least one guess to begin!");
         return;
       }
 
       revealed = true;
-      
-      // Update all charts with actual data
-      updatePieChart('lifetime', lifetime, actualData.lifetime, true);
-      updatePieChart('pastyear', pastYear, actualData.pastYear, true);
-      updatePieChart('pastmonth', pastMonth, actualData.pastMonth, true);
 
-      // Disable inputs
-      lifetimeInput.disabled = true;
-      pastYearInput.disabled = true;
-      pastMonthInput.disabled = true;
-
-      // Show try again button
-      revealButton.style.display = 'none';
-      tryAgainButton.style.display = 'inline-block';
-    });
-
-    // Try again button
-    tryAgainButton.addEventListener('click', function() {
-      // Reset
-      lifetimeInput.value = '';
-      pastYearInput.value = '';
-      pastMonthInput.value = '';
-      lifetimeInput.disabled = false;
-      pastYearInput.disabled = false;
-      pastMonthInput.disabled = false;
-
-      revealed = false;
-
-      // Reset charts
-      chartConfig.forEach(config => {
-        updatePieChart(config.id, 0, config.actual, false);
+      charts.forEach((cfg) => {
+        updatePie(cfg.id, guesses[cfg.id], cfg.actual, true);
+        inputs[cfg.id].disabled = true;
       });
 
-      revealButton.style.display = 'inline-block';
-      tryAgainButton.style.display = 'none';
+      revealBtn.style.display = "none";
+      resetBtn.style.display = "inline-block";
     });
 
-    function createPieChart(config) {
-      const container = pieChartsContainer.append('div')
-        .attr('class', 'pie-chart-container')
-        .attr('id', `pie-${config.id}`);
+    // =============================
+    // 4. BUTTON — RESET QUIZ
+    // =============================
+    resetBtn.addEventListener("click", () => {
+      revealed = false;
 
-      container.append('div')
-        .attr('class', 'pie-title')
-        .text(config.title);
+      Object.keys(inputs).forEach((key) => {
+        inputs[key].value = "";
+        inputs[key].disabled = false;
+      });
 
-      const width = 250;
-      const height = 250;
-      const radius = Math.min(width, height) / 2 - 10;
+      charts.forEach((cfg) => {
+        updatePie(cfg.id, 0, cfg.actual, false);
+      });
 
-      const svg = container.append('svg')
-        .attr('width', width)
-        .attr('height', height)
-        .append('g')
-        .attr('transform', `translate(${width / 2},${height / 2})`);
+      resetBtn.style.display = "none";
+      revealBtn.style.display = "inline-block";
+    });
 
-      // Background circle
-      svg.append('circle')
-        .attr('r', radius)
-        .attr('fill', 'rgba(255, 255, 255, 0.1)')
-        .attr('stroke', 'rgba(255, 255, 255, 0.3)')
-        .attr('stroke-width', 2);
+    // =============================
+    // 5. PIE CREATION
+    // =============================
+    function createPie(cfg) {
+      const wrap = pieChartsContainer
+        .append("div")
+        .attr("class", "pie-block")
+        .attr("id", `pie-${cfg.id}`);
 
-      // Guess arc group
-      svg.append('g').attr('class', 'guess-arc');
-      
-      // Actual arc group (initially hidden)
-      svg.append('g').attr('class', 'actual-arc');
+      wrap.append("div")
+        .attr("class", "pie-header")
+        .text(cfg.title);
 
-      // Labels group
-      svg.append('g').attr('class', 'labels');
+      // SVG setup
+      const size = 260;
+      const svg = wrap
+        .append("svg")
+        .attr("width", size)
+        .attr("height", size)
+        .append("g")
+        .attr("transform", `translate(${size / 2}, ${size / 2})`);
+
+      svg.append("circle")
+        .attr("class", "pie-bg")
+        .attr("r", 110);
+
+      svg.append("g").attr("class", "guess-layer");
+      svg.append("g").attr("class", "actual-layer");
+      svg.append("g").attr("class", "label-layer");
     }
 
-    function updatePieChart(id, guessValue, actualValue, showActual) {
-      const svg = d3.select(`#pie-${id} svg g`);
-      const radius = 115;
+    // =============================
+    // 6. PIE UPDATE
+    // =============================
+    function updatePie(id, guess, actualVal, showActual) {
+      const g = d3.select(`#pie-${id} svg g`);
+      const radius = 110;
 
-      // Pie generator
-      const pie = d3.pie()
-        .value(d => d)
-        .sort(null);
+      const pie = d3.pie().value((d) => d).sort(null);
 
-      // Arc generators
-      const guessArc = d3.arc()
-        .innerRadius(0)
-        .outerRadius(radius);
+      const arcGuess = d3.arc().innerRadius(0).outerRadius(radius);
+      const arcActual = d3.arc().innerRadius(0).outerRadius(radius - 25);
 
-      const actualArc = d3.arc()
-        .innerRadius(0)
-        .outerRadius(radius - 20);
+      const guessData = pie([guess, 100 - guess]);
+      const actualData = pie([actualVal, 100 - actualVal]);
 
-      // Update guess arc
-      const guessData = pie([guessValue, 100 - guessValue]);
-      
-      const guessGroup = svg.select('.guess-arc');
-      const guessPath = guessGroup.selectAll('path')
-        .data(guessData);
+      // Guess arcs
+      const guessLayer = g.select(".guess-layer").selectAll("path").data(guessData);
 
-      guessPath.enter()
-        .append('path')
-        .merge(guessPath)
-        .attr('fill', (d, i) => i === 0 ? '#FF6B6B' : 'rgba(255, 255, 255, 0.1)')
-        .attr('stroke', '#ffffff')
-        .attr('stroke-width', 2)
+      guessLayer.enter()
+        .append("path")
+        .merge(guessLayer)
+        .attr("fill", (_, i) => (i === 0 ? "#4DA3FF" : "rgba(255,255,255,0.08)"))
+        .attr("stroke", "#fff")
+        .attr("stroke-width", 2)
         .transition()
-        .duration(500)
-        .attrTween('d', function(d) {
-          const interpolate = d3.interpolate({ startAngle: 0, endAngle: 0 }, d);
-          return function(t) {
-            return guessArc(interpolate(t));
-          };
+        .duration(600)
+        .attrTween("d", function (d) {
+          const i = d3.interpolate({ startAngle: 0, endAngle: 0 }, d);
+          return (t) => arcGuess(i(t));
         });
 
-      // Update actual arc (overlay)
-      if (showActual) {
-        const actualData = pie([actualValue, 100 - actualValue]);
-        
-        const actualGroup = svg.select('.actual-arc');
-        const actualPath = actualGroup.selectAll('path')
-          .data(actualData);
+      // Actual arcs
+      const actualLayer = g.select(".actual-layer").selectAll("path").data(showActual ? actualData : []);
 
-        actualPath.enter()
-          .append('path')
-          .merge(actualPath)
-          .attr('fill', (d, i) => i === 0 ? 'rgba(76, 175, 80, 0.7)' : 'transparent')
-          .attr('stroke', (d, i) => i === 0 ? '#4CAF50' : 'transparent')
-          .attr('stroke-width', 3)
-          .attr('stroke-dasharray', '5,5')
-          .transition()
-          .delay(300)
-          .duration(700)
-          .attrTween('d', function(d) {
-            const interpolate = d3.interpolate({ startAngle: 0, endAngle: 0 }, d);
-            return function(t) {
-              return actualArc(interpolate(t));
-            };
-          });
-      } else {
-        svg.select('.actual-arc').selectAll('path').remove();
-      }
+      actualLayer.enter()
+        .append("path")
+        .merge(actualLayer)
+        .attr("fill", (_, i) => (i === 0 ? "rgba(0, 255, 140, 0.6)" : "transparent"))
+        .attr("stroke", (_, i) => (i === 0 ? "#00FF8C" : "transparent"))
+        .attr("stroke-width", 3)
+        .attr("stroke-dasharray", "6,4")
+        .transition()
+        .duration(900)
+        .attrTween("d", function (d) {
+          const i = d3.interpolate({ startAngle: 0, endAngle: 0 }, d);
+          return (t) => arcActual(i(t));
+        });
 
-      // Update labels
-      const labelsGroup = svg.select('.labels');
-      labelsGroup.selectAll('*').remove();
+      // Labels
+      const labelLayer = g.select(".label-layer");
+      labelLayer.selectAll("*").remove();
 
       // Guess label
-      labelsGroup.append('text')
-        .attr('class', 'guess-label')
-        .attr('text-anchor', 'middle')
-        .attr('y', showActual ? -15 : 0)
-        .style('opacity', 0)
-        .text(`${guessValue.toFixed(1)}%`)
-        .transition()
-        .duration(500)
-        .style('opacity', 1);
+      labelLayer
+        .append("text")
+        .attr("class", "pie-label-guess")
+        .attr("y", showActual ? -12 : 5)
+        .text(`${guess.toFixed(1)}%`);
 
       if (showActual) {
-        // Actual label
-        labelsGroup.append('text')
-          .attr('class', 'actual-label')
-          .attr('text-anchor', 'middle')
-          .attr('y', 10)
-          .style('opacity', 0)
-          .text(`${actualValue.toFixed(1)}%`)
-          .transition()
-          .delay(300)
-          .duration(500)
-          .style('opacity', 1);
+        labelLayer
+          .append("text")
+          .attr("class", "pie-label-actual")
+          .attr("y", 12)
+          .text(`${actualVal.toFixed(1)}%`);
 
-        // Error label
-        const error = Math.abs(guessValue - actualValue);
-        const errorText = guessValue > actualValue ? `+${error.toFixed(1)}%` : 
-                         guessValue < actualValue ? `-${error.toFixed(1)}%` : 'Perfect!';
-        
-        labelsGroup.append('text')
-          .attr('class', 'error-label')
-          .attr('text-anchor', 'middle')
-          .attr('y', 35)
-          .style('opacity', 0)
-          .text(errorText)
-          .transition()
-          .delay(600)
-          .duration(500)
-          .style('opacity', 1);
+        const diff = guess - actualVal;
+        const msg =
+          diff === 0
+            ? "Perfect!"
+            : diff > 0
+            ? `+${Math.abs(diff).toFixed(1)}%`
+            : `-${Math.abs(diff).toFixed(1)}%`;
+
+        labelLayer
+          .append("text")
+          .attr("class", "pie-label-error")
+          .attr("y", 34)
+          .text(msg);
       }
     }
 
-    console.log("Pie chart quiz initialized!");
+    console.log("Updated quiz loaded successfully.");
   }
 })();

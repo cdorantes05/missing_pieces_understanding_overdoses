@@ -835,17 +835,16 @@
   }
   
 /* ======================================================
-   FIX 1 — DRUG QUIZ (Test Your Knowledge) — HORIZONTAL
+   Modern Drug Quiz Formatting — Clean + Dashboard Style
    ====================================================== */
 
-#quiz-container { 
+   #quiz-container {
     display: flex;
-    flex-direction: row;
     justify-content: center;
     align-items: flex-start;
-    gap: 50px;
+    gap: 60px;
     width: 100%;
-    margin-top: 30px;
+    margin-top: 40px;
 }
 
 #quiz-inputs {
@@ -854,12 +853,83 @@
     gap: 20px;
 }
 
+#quiz-inputs input {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.18);
+    padding: 10px 12px;
+    color: white;
+    font-size: 15px;
+    border-radius: 8px;
+    width: 170px;
+}
+
+#quiz-inputs input:disabled {
+    opacity: 0.5;
+}
+
+#reveal-answer,
+#try-again {
+    margin-top: 10px;
+    padding: 10px 16px;
+    border-radius: 8px;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+    color: white;
+    font-size: 15px;
+}
+
+#reveal-answer {
+    background: #4da3ff;
+}
+
+#reveal-answer:hover {
+    background: #6bb4ff;
+}
+
+#try-again {
+    background: #303030;
+    display: none;
+}
+
+#try-again:hover {
+    background: #3f3f3f;
+}
+
 #pie-charts {
     display: flex;
-    flex-direction: row;
+    gap: 50px;
     justify-content: center;
-    align-items: center;
-    gap: 40px;
+}
+
+.pie-block {
+    text-align: center;
+}
+
+.pie-header {
+    margin-bottom: 10px;
+    font-size: 18px;
+    font-weight: 600;
+    color: white;
+}
+
+.pie-bg {
+    fill: rgba(255,255,255,0.04);
+    stroke: rgba(255,255,255,0.18);
+    stroke-width: 2px;
+}
+
+.pie-label-guess,
+.pie-label-actual,
+.pie-label-error {
+    fill: white;
+    font-weight: 600;
+    text-anchor: middle;
+    font-size: 15px;
+}
+
+.pie-label-error {
+    fill: #00ff8c;
 }
 
 
