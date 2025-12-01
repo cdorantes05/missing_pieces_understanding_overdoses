@@ -597,6 +597,57 @@
     }
   }
 
+  /* ===========================
+   NALOXONE RADIAL CHART
+   =========================== */
+
+#naloxone-bar svg {
+  width: 100%;
+  height: auto;
+}
+
+.naloxone-arc {
+  cursor: pointer;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.naloxone-arc:hover {
+  opacity: 0.9;
+}
+
+.naloxone-center-label .center-title {
+  fill: #ffffff;
+  font-size: 18px;
+  font-weight: 700;
+  text-anchor: middle;
+}
+
+.naloxone-center-label .center-subtitle {
+  fill: rgba(255,255,255,0.7);
+  font-size: 12px;
+  text-anchor: middle;
+}
+
+.naloxone-legend {
+  font-size: 0.9rem;
+  fill: #ffffff;
+}
+
+.naloxone-legend text {
+  fill: #ffffff;
+}
+
+.ring-year-label {
+  font-size: 11px;
+  fill: rgba(255,255,255,0.6);
+}
+
+/* Tooltip spacing tweak (optional, if not already styled elsewhere) */
+#naloxone-tooltip {
+  z-index: 1000;
+}
+
+
   /* Employment and Addiction Section */
   #section3a {
     padding: 1rem 1rem;

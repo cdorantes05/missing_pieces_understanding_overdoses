@@ -152,40 +152,44 @@
       .attr("stroke-dashoffset", 0);
   }
 
-  // Legend - positioned outside the chart area on the right
-  const legend = svg.append("g")
-    .attr("transform", `translate(${width - marginRight + 20}, ${marginTop + 30})`);
+  // Legend wrapper
+const legendGroup = svg.append("g")
+.attr("transform", `translate(${width - marginRight + 20}, ${marginTop + 30})`);
 
-  // Legend title
-  legend.append("text")
-    .attr("x", 0)
-    .attr("y", -10)
-    .attr("fill", "#ffffff")
-    .attr("font-size", "13px")
-    .attr("font-weight", "bold")
-    .text("Age Groups");
+// --- NEW: separate sub-group for the header ---
+legendGroup.append("g")
+.append("text")
+.attr("x", 0)
+.attr("y", -10)
+.attr("fill", "#ffffff")
+.attr("font-size", "13px")
+.attr("font-weight", "bold")
+.text("Age Groups");
 
-  // Use ordered age groups for legend
-  legend.selectAll("rect")
-    .data(orderedAgeGroups)
-    .enter()
-    .append("rect")
-    .attr("x", 0)
-    .attr("y", (d, i) => i * 22)
-    .attr("width", 14)
-    .attr("height", 14)
-    .attr("fill", d => color(d))
-    .attr("rx", 2);
+// --- NEW: separate sub-group for legend items ---
+const legendItems = legendGroup.append("g")
+.attr("class", "legend-items");
 
-  legend.selectAll("text")
-    .data(orderedAgeGroups)
-    .enter()
-    .append("text")
-    .attr("x", 22)
-    .attr("y", (d, i) => i * 22 + 11)
-    .text(d => d)
-    .style("font-size", "12px")
-    .attr("fill", "#ffffff");
+legendItems.selectAll("rect")
+.data(orderedAgeGroups)
+.enter()
+.append("rect")
+.attr("x", 0)
+.attr("y", (d, i) => i * 22)
+.attr("width", 14)
+.attr("height", 14)
+.attr("fill", d => color(d))
+.attr("rx", 2);
+
+legendItems.selectAll("text")
+.data(orderedAgeGroups)
+.enter()
+.append("text")
+.attr("x", 22)
+.attr("y", (d, i) => i * 22 + 11)
+.attr("fill", "#ffffff")
+.style("font-size", "12px")
+.text(d => d);
 
   // ====================================
   // INTERACTIVE VERTICAL LINE + AGE DISTRIBUTION
