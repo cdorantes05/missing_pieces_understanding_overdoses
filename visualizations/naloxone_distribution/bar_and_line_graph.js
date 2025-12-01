@@ -46,7 +46,9 @@ d3.csv("data/naloxone_distribution.csv").then(raw => {
   const x = d3.scaleLinear().range([0, widthBar - marginBar.left - marginBar.right]);
   const y = d3.scaleBand().range([0, heightBar - marginBar.top - marginBar.bottom]).padding(0.25);
 
-  const barColor = "#DC143C";
+  const colorScale = d3.scaleOrdinal()
+    .domain(data.map(d => d.Specialty))
+    .range(["#0072B2", "#56B4E9", "#009E73", "#88CCEE", "#117733", "#44AA99", "#66CCEE", "#1E88A8", "#2A9D8F", "#6A9FB0"]);
 
 
   // ----------------------------------------
@@ -165,7 +167,7 @@ d3.csv("data/naloxone_distribution.csv").then(raw => {
       .attr("y", d => y(d.Specialty))
       .attr("width", d => x(d.value))
       .attr("height", y.bandwidth())
-      .attr("fill", barColor)
+      .attr("fill", d => colorScale(d.Specialty))
       .style("cursor", "pointer");
 
     gBar.selectAll(".spec-label")
@@ -199,7 +201,7 @@ d3.csv("data/naloxone_distribution.csv").then(raw => {
   // HANDLE CLICK ON LINE CHART DOTS
   // ----------------------------------------
   function highlightYear(year) {
-    dots.attr("fill", d => d.year === year ? "#DC143C" : "white");
+    dots.attr("fill", d => d.year === year ? "#0072B2" : "white");
 
     updateBars(String(year));
   }
