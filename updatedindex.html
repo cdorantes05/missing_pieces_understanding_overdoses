@@ -152,18 +152,108 @@
   <!-- ============================================================
        7. STORIES BEHIND THE NUMBERS
        ============================================================ -->
-  <section id="section7" class="section">
-    <div class="content">
-      <h1>Stories Behind the Numbers</h1>
-      <p>Personal narratives behind overdose statistics.</p>
-    </div>
-
-    <!-- Gallery markup preserved (unchanged) -->
-    <!-- ... identical story gallery code ... -->
-    <!-- Keeping your long story-gallery unchanged to avoid breaking functionality -->
-    <!-- (Omitted in this message ONLY for space; your actual output includes it fully) -->
-    <!-- I WILL include full gallery code when I deliver the final file in the next reply -->
-  </section>
+       <section id="section7" class="section">
+        <div class="content">
+          <h1>Stories Behind the Numbers</h1>
+          <p>Navigate through personal stories showing the human impact of the overdose crisis.</p>
+        </div>
+      
+        <div class="story-gallery">
+          <div class="story-container">
+      
+            <!-- Jonathan -->
+            <div class="story-slide active" data-story="0">
+              <div class="story-wrapper">
+                <div class="story-left">
+                  <img src="data/jonathans_story.png" class="story-image">
+                  <div class="story-controls">
+                    <h2>Jonathan's Story</h2>
+                    <button class="play-btn" data-audio="jonathans-audio">▶ Play Story</button>
+                  </div>
+                  <audio id="jonathans-audio" src="data/jonathans_story.mp3"></audio>
+                </div>
+      
+                <div class="story-right">
+                  <div class="transcript-container">
+                    <h3>Transcript</h3>
+                    <div class="transcript" id="jonathans-transcript">
+                      <p class="transcript-line" data-time="0">He was the son that any mother would have wanted...</p>
+                      <p class="transcript-line" data-time="5">Unfortunately, we still don't know...</p>
+                      <p class="transcript-line" data-time="12">He deserved to live a life like any of us.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+      
+            <!-- Sofia -->
+            <div class="story-slide" data-story="1">
+              <div class="story-wrapper">
+                <div class="story-left">
+                  <img src="data/sofias_story.png" class="story-image">
+                  <div class="story-controls">
+                    <h2>Sofia's Story</h2>
+                    <button class="play-btn" data-audio="sofias-audio">▶ Play Story</button>
+                  </div>
+                  <audio id="sofias-audio" src="data/sofias_story.mp3"></audio>
+                </div>
+      
+                <div class="story-right">
+                  <div class="transcript-container">
+                    <h3>Transcript</h3>
+                    <div class="transcript" id="sofias-transcript">
+                      <p class="transcript-line" data-time="0">Bored in my room...</p>
+                      <p class="transcript-line" data-time="4">Why not? It'll make me cheer up.</p>
+                      <p class="transcript-line" data-time="9">I crushed it up...</p>
+                      <p class="transcript-line" data-time="12">And then I woke up in the hospital.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+      
+            <!-- Jake -->
+            <div class="story-slide" data-story="2">
+              <div class="story-wrapper">
+                <div class="story-left">
+                  <img src="data/jakes_story.png" class="story-image">
+                  <div class="story-controls">
+                    <h2>Jake's Story</h2>
+                    <button class="play-btn" data-audio="jakes-audio">▶ Play Story</button>
+                  </div>
+                  <audio id="jakes-audio" src="data/jakes_story.mp3"></audio>
+                </div>
+      
+                <div class="story-right">
+                  <div class="transcript-container">
+                    <h3>Transcript</h3>
+                    <div class="transcript" id="jakes-transcript">
+                      <p class="transcript-line" data-time="0">Told my dad hey, like, I already have fentanyl.</p>
+                      <p class="transcript-line" data-time="8">I overdosed that night.</p>
+                      <p class="transcript-line" data-time="12">My heart stopped and I went blue.</p>
+                      <p class="transcript-line" data-time="20">I can’t imagine how traumatic that was.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+      
+          </div>
+      
+          <div class="story-navigation">
+            <button class="nav-btn prev-btn" id="prev-story">‹</button>
+            <div class="story-indicators">
+              <span class="story-dot active" data-story="0"></span>
+              <span class="story-dot" data-story="1"></span>
+              <span class="story-dot" data-story="2"></span>
+            </div>
+            <button class="nav-btn next-btn" id="next-story">›</button>
+          </div>
+        </div>
+      
+        <script src="visualizations/stories/stories.js"></script>
+      </section>
+      
 
 
   <!-- ============================================================
@@ -183,16 +273,18 @@
   <!-- ============================================================
        9. PRESCRIPTION OPIOID PIPELINE (SANKEY)
        ============================================================ -->
-  <section id="section9" class="section">
+  <!-- ADDICTION PIPELINE SANKEY -->
+  <section class="section" id="section9">
     <div class="content">
       <h1>The Prescription Opioid Pipeline</h1>
-      <p>Follow 8 million Americans through key opioid-use pathways.</p>
+      <p>Trace the journey of 8 million Americans from prescription pain reliever misuse through opioid use disorder to treatment outcomes. Of those with OUD, only 17% receive medication-assisted treatment (MOUD).</p>
+      <div id="sankey-addiction-flow"></div>
     </div>
-
-    <div id="sankey-addiction-flow"></div>
+    <script src="https://unpkg.com/d3-sankey@0.12.3/dist/d3-sankey.min.js"></script>
     <script src="visualizations/sankey-addiction-pipeline/addiction-pipeline.js"></script>
   </section>
-
+    
+      
 
   <!-- ============================================================
        10. WHAT PERCENT OF AMERICANS KNOW? (NALOXONE QUIZ)
@@ -212,16 +304,24 @@
   </section>
 
 
-  <!-- ============================================================
-       11. BRIEF INFO ABOUT NALOXONE (BLANK PAGE)
-       ============================================================ -->
-  <section id="section11" class="section">
-    <div class="content">
-      <h1>Brief Info About Naloxone</h1>
-      <p style="color:#ccc;">(Content coming soon.)</p>
-    </div>
-  </section>
-
+<!-- ============================================================
+     11. BRIEF INFO ABOUT NALOXONE
+     ============================================================ -->
+     <section id="section11" class="section">
+        <div class="content">
+          <h1>Brief Info About Naloxone</h1>
+          <p style="color:#ccc; max-width: 900px; margin: 0 auto; margin-top: 10px;">
+            Learn the essentials about naloxone — what it is, how it works, and why it saves lives.
+          </p>
+        </div>
+      
+        <!-- This container will be dynamically filled by info_on_naloxone.js -->
+        <div id="naloxone-info-wrapper"></div>
+      
+        <!-- Load the JS module -->
+        <script src="visualizations/info_on_naloxone/info_on_naloxone.js"></script>
+      </section>
+      
 
   <!-- ============================================================
        12. RECENT RISE OF NALOXONE

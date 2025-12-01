@@ -73,8 +73,7 @@
         "#3b82f6", // Entry - Blue
         "#8b5cf6", // Misuse - Purple
         "#f59e0b", // Opioid classification - Orange
-        "#ef4444", // OUD - Red
-        "#10b981"  // Treatment - Green
+        "#ef4444" // OUD - Red
       ]);
 
     // Node color function
@@ -208,7 +207,7 @@
       .style("pointer-events", "none");
 
     // Stage labels
-    const stages = ["Entry", "Past-Year Misuse", "Classification", "Disorder Status", "Treatment"];
+    const stages = ["Entry", "Past-Year Misuse", "Classification", "Disorder Status"];
     const stagePositions = [80, 280, 480, 680, 880];
 
     svg.append("g")

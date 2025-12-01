@@ -8,13 +8,13 @@ document.addEventListener("DOMContentLoaded", () => {
     // ✏️ EDIT THESE LINES LATER AS WE REFINE THE COPY
     const lines = [
         "Every few minutes, someone in the world dies from a drug overdose.",
-        "By the time you finish scrolling here, another life will be gone.",
+        "By the time you finish scrolling here, another life will be taken.",
         "We’re running out of time to understand the crisis and rewrite its story."
     ];
       
   
     const subtext =
-    "Scroll to uncover the hidden patterns, the human stories, and the urgent reality behind the overdose epidemic.";
+    "Scroll to uncover the hidden patterns, the human stories, and the recent hero behind the overdose epidemic.";
   
     const typingSpeed = 65;    // ms per character
     const linePause = 900;     // pause after each line in ms

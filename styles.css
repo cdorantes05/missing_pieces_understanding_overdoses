@@ -1066,3 +1066,11 @@
     width: 100%;
   }
 }
+
+/* Naloxone info cards */
+#naloxone-info-wrapper .naloxone-info-card:hover {
+  background: rgba(255,255,255,0.08);
+  border-color: rgba(255,255,255,0.15);
+  transform: translateY(-3px);
+  transition: 0.25s ease;
+}
