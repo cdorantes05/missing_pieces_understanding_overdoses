@@ -69,21 +69,28 @@
       // Update scale
       sizeScale.domain([0, d3.max(data, d => d.deaths)]);
 
-      // Create nodes
-      nodes = data.map(d => ({
-        ...d,
-        radius: sizeScale(d.deaths),
-        x: Math.random() * width - width / 2,
-        y: Math.random() * height - height / 2
-      }));
+      // Create nodes in zigzag pattern
+      nodes = data.map((d, i) => {
+        const row = Math.floor(i / 3);
+        const col = i % 3;
+        const xSpacing = width / 5;
+        const ySpacing = height / 4;
+        const xOffset = row % 2 === 0 ? 0 : xSpacing / 2;
+        
+        return {
+          ...d,
+          radius: sizeScale(d.deaths),
+          x: (col - 1) * xSpacing + xOffset,
+          y: (row - 1) * ySpacing
+        };
+      });
 
-      // Force simulation
+      // Force simulation with position constraints
       simulation = d3.forceSimulation(nodes)
         .force("charge", d3.forceManyBody().strength(5))
-        .force("center", d3.forceCenter(0, 0))
         .force("collision", d3.forceCollide().radius(d => d.radius + 2))
-        .force("x", d3.forceX(0).strength(0.05))
-        .force("y", d3.forceY(0).strength(0.05));
+        .force("x", d3.forceX(d => d.x).strength(0.8))
+        .force("y", d3.forceY(d => d.y).strength(0.8));
 
       // Stop simulation initially if not animating
       if (!animate) {
