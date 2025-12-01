@@ -48,6 +48,12 @@ style.textContent = `
     fill: #f59e0b;
     stroke: #b45309;
     stroke-width: 2;
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.7; transform: scale(1.05); }
   }
 
   .person { cursor: default; }
