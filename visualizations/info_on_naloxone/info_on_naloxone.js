@@ -52,8 +52,8 @@
               .join("")}
           </div>
   
-          <button class="nav-arrow left-arrow">‹</button>
-          <button class="nav-arrow right-arrow">›</button>
+          <button class="nav-arrow left-arrow"></button>
+          <button class="nav-arrow right-arrow"></button>
   
           <div class="naloxone-dots">
             ${slides

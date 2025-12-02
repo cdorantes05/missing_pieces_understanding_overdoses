@@ -158,102 +158,10 @@
        <section id="section7" class="section">
         <div class="content">
           <h1>Stories Behind the Numbers</h1>
-          <p>Navigate through personal stories showing the human impact of the overdose crisis.</p>
+          <p>Navigate through personal stories of loss, addiction, and recovery.</p>
         </div>
-      
-        <div class="story-gallery">
-          <div class="story-container">
-      
-            <!-- Jonathan -->
-            <div class="story-slide active" data-story="0">
-              <div class="story-wrapper">
-                <div class="story-left">
-                  <img src="data/jonathans_story.png" class="story-image">
-                  <div class="story-controls">
-                    <h2>Jonathan's Story</h2>
-                    <button class="play-btn" data-audio="jonathans-audio">▶ Play Story</button>
-                  </div>
-                  <audio id="jonathans-audio" src="data/jonathans_story.mp3"></audio>
-                </div>
-      
-                <div class="story-right">
-                  <div class="transcript-container">
-                    <h3>Transcript</h3>
-                    <div class="transcript" id="jonathans-transcript">
-                      <p class="transcript-line" data-time="0">He was the son that any mother would have wanted...</p>
-                      <p class="transcript-line" data-time="5">Unfortunately, we still don't know...</p>
-                      <p class="transcript-line" data-time="12">He deserved to live a life like any of us.</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-      
-            <!-- Sofia -->
-            <div class="story-slide" data-story="1">
-              <div class="story-wrapper">
-                <div class="story-left">
-                  <img src="data/sofias_story.png" class="story-image">
-                  <div class="story-controls">
-                    <h2>Sofia's Story</h2>
-                    <button class="play-btn" data-audio="sofias-audio">▶ Play Story</button>
-                  </div>
-                  <audio id="sofias-audio" src="data/sofias_story.mp3"></audio>
-                </div>
-      
-                <div class="story-right">
-                  <div class="transcript-container">
-                    <h3>Transcript</h3>
-                    <div class="transcript" id="sofias-transcript">
-                      <p class="transcript-line" data-time="0">Bored in my room...</p>
-                      <p class="transcript-line" data-time="4">Why not? It'll make me cheer up.</p>
-                      <p class="transcript-line" data-time="9">I crushed it up...</p>
-                      <p class="transcript-line" data-time="12">And then I woke up in the hospital.</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-      
-            <!-- Jake -->
-            <div class="story-slide" data-story="2">
-              <div class="story-wrapper">
-                <div class="story-left">
-                  <img src="data/jakes_story.png" class="story-image">
-                  <div class="story-controls">
-                    <h2>Jake's Story</h2>
-                    <button class="play-btn" data-audio="jakes-audio">▶ Play Story</button>
-                  </div>
-                  <audio id="jakes-audio" src="data/jakes_story.mp3"></audio>
-                </div>
-      
-                <div class="story-right">
-                  <div class="transcript-container">
-                    <h3>Transcript</h3>
-                    <div class="transcript" id="jakes-transcript">
-                      <p class="transcript-line" data-time="0">Told my dad hey, like, I already have fentanyl.</p>
-                      <p class="transcript-line" data-time="8">I overdosed that night.</p>
-                      <p class="transcript-line" data-time="12">My heart stopped and I went blue.</p>
-                      <p class="transcript-line" data-time="20">I can’t imagine how traumatic that was.</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-      
-          </div>
-      
-          <div class="story-navigation">
-            <button class="nav-btn prev-btn" id="prev-story">‹</button>
-            <div class="story-indicators">
-              <span class="story-dot active" data-story="0"></span>
-              <span class="story-dot" data-story="1"></span>
-              <span class="story-dot" data-story="2"></span>
-            </div>
-            <button class="nav-btn next-btn" id="next-story">›</button>
-          </div>
-        </div>
-      
+
+        <div id="stories-container"></div>
         <script src="visualizations/stories/stories.js"></script>
       </section>
       
