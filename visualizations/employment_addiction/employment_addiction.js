@@ -119,18 +119,30 @@ function renderIndustryIconsChart(targetId) {
   container.classList.add("icon-chart-container");
 
   container.innerHTML = `
-    <p class="legend-text">Ranking Mode:</p>
-    <div class="sort-toolbar">
-      <button class="sort-btn active" data-sort="drug">Highest Drug Use</button>
-      <button class="sort-btn" data-sort="workers">Number of Workers</button>
-      <button class="sort-btn" data-sort="wage">Average Hourly Wage</button>
-      <button class="sort-btn" data-sort="hours">Hours Worked per Week</button>
-    </div>
+  <p class="legend-text">Ranking Mode:</p>
+  <div class="sort-toolbar">
+    <button class="sort-btn active" data-sort="drug">Default: Drug Use</button>
+    <button class="sort-btn" data-sort="workers">Number of Workers</button>
+    <button class="sort-btn" data-sort="wage">Average Hourly Wage</button>
+    <button class="sort-btn" data-sort="hours">Hours Worked per Week</button>
+  </div>
 
+  <div class="chart-wrapper">
     <svg id="industryIconSvg"></svg>
-    <p class="icon-chart-subtitle">Each row shows <strong>1 person out of N</strong> workers reporting substance use.</p>
-    <div id="industryTooltip" class="tooltip"></div>
-  `;
+
+    <!-- ⭐ NEW RIGHT-SIDE LEGEND ⭐ -->
+    <div class="vertical-rank-legend">
+      <span class="rank-high">Highest</span>
+      <div class="rank-line"></div>
+      <span class="rank-low">Lowest</span>
+    </div>
+  </div>
+
+  <p class="icon-chart-subtitle">Each row shows <strong>1 person out of N</strong> workers reporting substance use.</p>
+
+  <div id="industryTooltip" class="tooltip"></div>
+`;
+
 
   const svg = d3.select("#industryIconSvg");
   const tooltip = d3.select("#industryTooltip");
