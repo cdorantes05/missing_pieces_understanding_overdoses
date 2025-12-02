@@ -167,7 +167,7 @@
     /* Hero panel (left) */
     .hero-panel {
       flex: 1.6;
-      background: radial-gradient(circle at top, #1e163a 0%, #090812 70%);
+      background: #1b1b1b !important;
       border-radius: 18px;
       padding: 18px 18px 16px;
       box-shadow: 0 18px 40px rgba(0,0,0,0.55);
@@ -297,7 +297,7 @@
     /* Transcript panel (right) */
     .transcript-panel {
       flex: none;              /* remove flex-stretch */
-      background: radial-gradient(circle at top, #1e163a 0%, #090812 70%);
+      background: #1b1b1b !important;
       border-radius: 18px;
       padding: 16px 16px 14px;
       box-shadow: 0 16px 36px rgba(0,0,0,0.6);
@@ -408,9 +408,8 @@
     .story-card {
       min-width: 170px;
       max-width: 190px;
-      background: radial-gradient(circle at top, #1e163a 0%, #090812 70%);
+      background: #1b1b1b !important;
       border-radius: 14px;
-      box-shadow: 0 16px 30px rgba(0,0,0,0.55);
       cursor: pointer;
       transition: transform 0.15s ease, box-shadow 0.15s ease, border 0.15s ease;
       border: 1px solid transparent;
