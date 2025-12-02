@@ -51,8 +51,8 @@
   }
   
   .content h1 {
-    font-size: 3rem;
-    margin-bottom: 1rem;
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
     font-weight: 700;
   }
   
@@ -63,8 +63,8 @@
   }
   
   .content p {
-    font-size: 1.4rem;
-    line-height: 1.7;
+    font-size: 1.1rem;
+    line-height: 1.2;
     opacity: 0.9;
     margin-bottom: 1.2rem;
   }
@@ -298,6 +298,13 @@
   transition: opacity 0.2s;
 }
 
+#drug-bubble-filters {
+  width: fit-content;
+  margin-left: auto;       /* pushes it to the right */
+  margin-right: 40px;      /* adjust how far right */
+  transform: translateY(-10px); /* move upward */
+}
+
 #human-stories {
   position: relative;
   min-height: 100vh;
@@ -513,6 +520,8 @@
 .transcript-line.past {
   color: rgba(255, 255, 255, 0.4);
 }
+
+
 
 /* ===========================
    FIXED & CLEAN NALOXONE LAYOUT
@@ -1174,7 +1183,8 @@
   align-items: flex-start;
   gap: 40px;
   flex-wrap: wrap;
-  margin: 40px 0;
+  margin-top: 10px;
+  margin-bottom: 0px;
 }
 
 .drugs-quiz-column {
@@ -1194,11 +1204,11 @@
 
 .drugs-quiz-input {
   width: 120px;
-  padding: 10px;
+  padding: 2px;
   text-align: center;
   font-size: 16px;
   border: 2px solid rgba(255, 255, 255, 0.2);
-  border-radius: 8px;
+  border-radius: 4px;
   background: rgba(255, 255, 255, 0.1);
   color: #fff;
 }
@@ -1212,7 +1222,8 @@
   display: flex;
   justify-content: center;
   gap: 20px;
-  margin-top: 30px;
+  margin-top: 15px;
+  margin-bottom: 10px;
 }
 
 .drugs-quiz-button {
@@ -1229,4 +1240,13 @@
 
 .drugs-quiz-button:hover {
   background: #3d8fe6;
+}
+
+.drug-rate-list {
+  display: grid !important;
+  grid-template-columns: repeat(2, 1fr); /* 2 columns */
+  gap: 14px 14px;                        /* row gap, column gap */
+  width: 280px !important;               /* wider box so 2 columns fit */
+  margin-right: -80px;
+  padding: 10px !important;
 }

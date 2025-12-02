@@ -23,7 +23,7 @@
     const listWidth = 200; // Width for the drug list on the right
     const margin = { top: 10, right: 30, bottom: 20, left: 30 };
     const width = containerWidth - 40 - margin.left - margin.right - listWidth - 40; // Reserve space for list
-    const height = 550 - margin.top - margin.bottom;
+    const height = 350 - margin.top - margin.bottom;
 
     // Create main container div
     const mainContainer = d3.select("#drug-bubble-chart")
@@ -43,13 +43,13 @@
       .attr("height", height + margin.top + margin.bottom)
       .style("display", "block")
       .append("g")
-      .attr("transform", `translate(${margin.left + width/2}, ${margin.top + height / 2})`);
+      .attr("transform", `translate(${margin.left + width/2}, ${margin.top + height / 2 - 40})`);
 
     // Create drug list container
     const listContainer = mainContainer.append("div")
       .attr("class", "drug-rate-list")
       .style("width", listWidth + "px")
-      .style("padding", "20px")
+      .style("padding", "10px")
       .style("background", "rgba(255, 255, 255, 0.05)")
       .style("border-radius", "10px")
       .style("box-shadow", "0 2px 8px rgba(0,0,0,0.1)");
