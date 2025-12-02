@@ -1,4 +1,4 @@
-// Drug overdose bubble chart visualization - With Filters
+// Drug overdose bubble chart visualization - With Filters (Fixed Filtering)
 (function() {
   'use strict';
 
@@ -10,7 +10,6 @@
   }
 
   function initBubbleChart() {
-    console.log("Initializing drug bubble chart with filters...");
 
     // Check if container exists
     const container = document.getElementById('drug-bubble-chart');
@@ -21,8 +20,8 @@
 
     // Get container dimensions for responsive sizing
     const containerWidth = container.clientWidth;
-    const margin = { top: 10, right: 20, bottom: 20, left: 20 };
-    const width = Math.min(containerWidth - 40, 900) - margin.left - margin.right;
+    const margin = { top: 10, right: 30, bottom: 20, left: 30 };
+    const width = containerWidth - 40 - margin.left - margin.right;
     const height = 550 - margin.top - margin.bottom;
 
     // Create SVG
@@ -33,9 +32,7 @@
       .style("display", "block")
       .style("margin", "0 auto")
       .append("g")
-      .attr("transform", `translate(${margin.left + width / 2}, ${margin.top + height / 2})`);
-
-    console.log("SVG created for bubble chart with dimensions:", width, "x", height);
+      .attr("transform", `translate(${margin.left + width/2}, ${margin.top + height / 2})`);
 
     // Tooltip
     const tooltip = d3.select("body")
@@ -53,9 +50,9 @@
       .style("z-index", "1000")
       .style("box-shadow", "0 4px 6px rgba(0,0,0,0.3)");
 
-    // Bubble size scale
-    const sizeScale = d3.scaleSqrt()
-      .range([30, 105]);
+    // SCALE FOR BUBBLE SIZES, FEEL FREE TO CHANGE :)
+    const sizeScale = d3.scaleSqrt().range([50, 150]);
+
 
     // Animation control
     let hasAnimated = false;
@@ -65,59 +62,130 @@
 
     // Current filter state
     let currentFilter = {
-      type: 'overall', // 'overall', 'age', 'gender'
+      type: 'overall',
       age: null,
       gender: null
     };
 
-    // Function to create bubbles
-    function createBubbles(data, animate = false) {
-      console.log("Creating bubbles with data:", data);
+    // Function to create or update bubbles
+    function updateBubbles(data, isInitial = false) {
 
-      // Update scale
-      sizeScale.domain([0, d3.max(data, d => d.deaths)]);
 
-      // Create nodes in zigzag pattern
-      nodes = data.map((d, i) => {
-        const row = Math.floor(i / 3);
-        const col = i % 3;
-        const xSpacing = width / 5;
-        const ySpacing = height / 4;
-        const xOffset = row % 2 === 0 ? 0 : xSpacing / 2;
-        
-        return {
-          ...d,
-          radius: sizeScale(d.deaths),
-          x: (col - 1) * xSpacing + xOffset,
-          y: (row - 1) * ySpacing
-        };
-      });
+      // --- DYNAMIC AUTO-SPACING LAYOUT THAT MORPHS SMOOTHLY ---
 
-      // Force simulation with position constraints
-      simulation = d3.forceSimulation(nodes)
-        .force("charge", d3.forceManyBody().strength(5))
-        .force("collision", d3.forceCollide().radius(d => d.radius + 2))
-        .force("x", d3.forceX(d => d.x).strength(0.8))
-        .force("y", d3.forceY(d => d.y).strength(0.8));
+      const rowCount = 2;
+      const colCount = 3;
+      const padding = 0; // bubbles should touch
 
-      // Stop simulation initially if not animating
-      if (!animate) {
-        simulation.stop();
+      // Compute radii
+      const radii = data.map(d => sizeScale(d.deaths));
+
+      // Compute row heights based on largest radius in each row
+      const rowHeights = [];
+      for (let r = 0; r < rowCount; r++) {
+        const maxRadius = d3.max(radii.slice(r * colCount, (r + 1) * colCount));
+        rowHeights.push(maxRadius * 2 + padding);
       }
 
-      // Circles
+      const totalHeight = rowHeights[0] + rowHeights[1];
+
+      // Center both rows vertically around (0,0)
+      const yOffsets = [
+        -totalHeight / 4,
+        totalHeight / 4
+      ];
+
+      let newNodes = [];
+
+      for (let r = 0; r < rowCount; r++) {
+        
+        // Radii for this row
+        const rowR = radii.slice(r * colCount, (r + 1) * colCount);
+
+        // Total row width = sum(diameters) + padding
+        const totalRowWidth = d3.sum(rowR.map(x => x * 2)) + padding * (colCount - 1);
+
+        // Start X so row is perfectly centered
+        let xPos = -totalRowWidth / 2;
+
+        for (let c = 0; c < colCount; c++) {
+          const idx = r * colCount + c;
+          const d = data[idx];
+          const radius = rowR[c];
+
+          const targetX = xPos + radius;
+          const targetY = yOffsets[r];
+
+          // Find existing node for smooth morphing
+          const existing = nodes ? nodes.find(n => n.name === d.name) : null;
+
+          newNodes.push({
+            ...d,
+            radius,
+            targetX,
+            targetY,
+
+            // Morph from prior position → new target
+            x: existing ? existing.x : targetX,
+            y: existing ? existing.y : targetY,
+            vx: existing ? existing.vx : 0,
+            vy: existing ? existing.vy : 0
+          });
+
+          // Move X for the next bubble
+          xPos += radius * 2 + padding;
+        }
+      }
+
+      nodes = newNodes;
+
+      // Smoothly interpolate positions toward new target
+      svg.selectAll(".drug-bubble")
+        .transition()
+        .duration(500)
+        .ease(d3.easeCubicInOut)
+        .attrTween("cx", function(d) {
+          const i = d3.interpolateNumber(d.x, d.targetX);
+          return t => d.x = i(t);   // update data AND visual position
+        })
+        .attrTween("cy", function(d) {
+          const i = d3.interpolateNumber(d.y, d.targetY);
+          return t => d.y = i(t);
+        });
+
+
+      if (!simulation) {
+        simulation = d3.forceSimulation(nodes)
+          .force("x", d3.forceX(d => d.targetX).strength(0.15))
+          .force("y", d3.forceY(d => d.targetY).strength(0.15))
+          .force("collision", d3.forceCollide().radius(d => d.radius))
+          .alphaDecay(0.05);
+      } else {
+        simulation.nodes(nodes);
+        simulation.force("x").x(d => d.targetX);
+        simulation.force("y").y(d => d.targetY);
+        simulation.force("collision").radius(d => d.radius);
+        simulation.alpha(0.9).restart();
+}
+
+      // Bind data to circles
       const circles = svg.selectAll(".drug-bubble")
         .data(nodes, d => d.name);
 
+      // Remove circles that are no longer needed
       circles.exit()
         .transition()
         .duration(500)
         .attr("r", 0)
+        .style("opacity", 0)
         .remove();
 
+      // Add new circles
       const circlesEnter = circles.enter()
         .append("circle")
         .attr("class", "drug-bubble")
+        .attr("cx", d => d.x)
+        .attr("cy", d => d.y)
         .attr("r", 0)
         .style("cursor", "pointer")
         .attr("fill", d => d.color)
@@ -125,23 +193,24 @@
         .attr("stroke-width", 2)
         .style("opacity", 0);
 
+      // Merge and update ALL circles (both new and existing)
       const allCircles = circlesEnter.merge(circles);
 
-      // Animate if flag is set
-      if (animate) {
-        allCircles
-          .transition()
-          .duration(1000)
-          .delay((d, i) => i * 100)
-          .attr("r", d => d.radius)
-          .style("opacity", 0.8);
-      } else {
-        allCircles
-          .attr("r", d => d.radius)
-          .style("opacity", 0.8);
-      }
+      // Set radius immediately so physics & SVG match
+      allCircles
+        .attr("r", d => d.radius)
+        .style("opacity", 0.8);
 
-      // Hover tooltip
+      // Now update simulation forces with new radii
+      simulation.force("collision").radius(d => d.radius);
+      simulation.alphaTarget(0.2).restart();
+
+      setTimeout(() => {
+        simulation.alphaTarget(0);
+      }, 400);
+
+
+      // Set up hover interactions
       allCircles
         .on("mouseover", function(event, d) {
           d3.select(this)
@@ -174,43 +243,46 @@
           tooltip.style("visibility", "hidden");
         });
 
-      // Labels
+      // Bind data to labels
       const labels = svg.selectAll(".drug-label")
         .data(nodes, d => d.name);
 
-      labels.exit().remove();
+      // Remove labels that are no longer needed
+      labels.exit()
+        .transition()
+        .duration(500)
+        .style("opacity", 0)
+        .remove();
 
+      // Add new labels
       const labelsEnter = labels.enter()
         .append("text")
         .attr("class", "drug-label")
         .attr("text-anchor", "middle")
         .attr("dy", ".35em")
+        .attr("x", d => d.x)
+        .attr("y", d => d.y)
         .style("font-weight", "bold")
         .style("fill", "white")
         .style("pointer-events", "none")
         .style("opacity", 0);
 
+      // Merge and update ALL labels
       const allLabels = labelsEnter.merge(labels);
 
-      allLabels.text(d => d.name)
+      allLabels
+        .text(d => d.name)
+        .transition()
+        .duration(isInitial ? 1000 : 700)
+        .delay(isInitial ? (d, i) => i * 100 + 400 : 0)
         .style("font-size", d => {
           if (d.radius > 90) return "18px";
           if (d.radius > 60) return "14px";
           return "9px";
-        });
+        })
+        .style("opacity", 1);
 
-      // Animate labels if flag is set
-      if (animate) {
-        allLabels
-          .transition()
-          .duration(1000)
-          .delay((d, i) => i * 100 + 400)
-          .style("opacity", 1);
-      } else {
-        allLabels.style("opacity", 1);
-      }
-
-      // Update on tick
+      // Update positions on simulation tick
       simulation.on("tick", () => {
         allCircles
           .attr("cx", d => d.x)
@@ -221,7 +293,6 @@
           .attr("y", d => d.y);
       });
 
-      console.log("Bubbles created successfully");
     }
 
     // Function to aggregate data based on filters
@@ -242,14 +313,18 @@
       if (filterType === 'overall') {
         // Overall: sex = "Total" AND age_range = "Total"
         filteredData = data.filter(d => d.sex === "Total" && d.age_range === "Total");
+        console.log("Filtering for Overall - sex='Total' AND age_range='Total'");
       } else if (filterType === 'age' && age) {
         // By Age: age_range = selected age AND sex = "Total"
         filteredData = data.filter(d => d.age_range === age && d.sex === "Total");
+        console.log(`Filtering for Age - age_range='${age}' AND sex='Total'`);
       } else if (filterType === 'gender' && gender) {
         // By Gender: sex = selected gender AND age_range = "Total"
         filteredData = data.filter(d => d.sex === gender && d.age_range === "Total");
+        console.log(`Filtering for Gender - sex='${gender}' AND age_range='Total'`);
       } else {
-        // Default to overall
+        // Default to overall if no valid selection
+        console.log("No valid filter selection, defaulting to overall");
         filteredData = data.filter(d => d.sex === "Total" && d.age_range === "Total");
       }
 
@@ -257,8 +332,12 @@
 
       // Aggregate (average) the rate for each drug
       const aggregatedData = drugs.map(drug => {
-        const values = filteredData.map(d => +d[drug.key]).filter(v => !isNaN(v) && v !== 0);
+        const values = filteredData
+          .map(d => parseFloat(d[drug.key]))
+          .filter(v => Number.isFinite(v) && v !== 0);
+
         const mean = d3.mean(values) || 0;
+
         
         let infoText = `${drug.name} average nonfatal overdose rate`;
         if (filterType === 'age' && age) {
@@ -284,6 +363,16 @@
     function updateVisualization() {
       if (!fullData) return;
 
+      // Only update if we have valid filter selections
+      if (currentFilter.type === 'age' && !currentFilter.age) {
+        console.log("Age filter selected but no age chosen yet - skipping update");
+        return;
+      }
+      if (currentFilter.type === 'gender' && !currentFilter.gender) {
+        console.log("Gender filter selected but no gender chosen yet - skipping update");
+        return;
+      }
+
       const aggregatedData = aggregateData(
         fullData, 
         currentFilter.type, 
@@ -291,20 +380,18 @@
         currentFilter.gender
       );
 
-      // Remove old bubbles and labels
-      svg.selectAll(".drug-bubble").remove();
-      svg.selectAll(".drug-label").remove();
-
-      // Create new bubbles with animation
-      createBubbles(aggregatedData, true);
+      // Update bubbles with new data
+      updateBubbles(aggregatedData, false);
     }
 
-    // Function to trigger animation
+    // Function to trigger initial animation
     function triggerAnimation() {
-      if (simulation && nodes) {
-        console.log("Triggering bubble animation!");
+      if (!hasAnimated && nodes) {
+        hasAnimated = true;
         
-        simulation.alpha(1).restart();
+        if (simulation) {
+          simulation.alpha(1).restart();
+        }
         
         svg.selectAll(".drug-bubble")
           .transition()
@@ -329,7 +416,7 @@
         return;
       }
 
-      filterContainer.html(''); // Clear existing content
+      filterContainer.html('');
 
       // Filter type selection
       const filterTypeDiv = filterContainer
@@ -363,7 +450,11 @@
             currentFilter.age = null;
             currentFilter.gender = null;
             updateSecondaryFilters();
-            updateVisualization();
+            
+            // Only update visualization if switching to 'overall'
+            if (this.value === 'overall') {
+              updateVisualization();
+            }
           });
 
         label.append("span")
@@ -385,7 +476,6 @@
       secondaryContainer.html('');
 
       if (currentFilter.type === 'age') {
-        // Age group dropdown
         const ageGroups = ["0 to 14", "15 to 24", "25 to 34", "35 to 44", "45 to 54", "55 to 64", "65+"];
         
         secondaryContainer.append("label")
@@ -400,7 +490,9 @@
           .style("border-radius", "4px")
           .on("change", function() {
             currentFilter.age = this.value;
-            updateVisualization();
+            if (this.value) {
+              updateVisualization();
+            }
           });
 
         select.append("option")
@@ -414,7 +506,6 @@
         });
 
       } else if (currentFilter.type === 'gender') {
-        // Gender dropdown
         const genders = [
           { value: 'M', label: 'Male' },
           { value: 'F', label: 'Female' }
@@ -432,7 +523,9 @@
           .style("border-radius", "4px")
           .on("change", function() {
             currentFilter.gender = this.value;
-            updateVisualization();
+            if (this.value) {
+              updateVisualization();
+            }
           });
 
         select.append("option")
@@ -449,16 +542,39 @@
 
     // Load real dataset
     d3.csv("data/DOSE_SyS_Dashboard_Download_10-23-2025 - Overall.csv").then(function(data) {
-      console.log("Loaded overdose data:", data.length, "rows");
 
       fullData = data;
+
+      // Compute global max rate across all drug types (ignoring "*" etc.)
+      const globalMaxRaw = d3.max(fullData, d => 
+        Math.max(
+          parseFloat(d.fentanyl_rate)        || 0,
+          parseFloat(d.heroin_rate)          || 0,
+          parseFloat(d.stimulant_rate)       || 0,
+          parseFloat(d.cocaine_rate)         || 0,
+          parseFloat(d.methamphetamine_rate) || 0,
+          parseFloat(d.benzodiazepine_rate)  || 0
+        )
+      );
+
+      // Focus the visual scale on the 0–10 range (most age-group averages live here)
+      const effectiveMax = Math.min(globalMaxRaw, 10);
+
+      // Use one constant domain across all filters, and clamp big outliers
+      sizeScale
+        .domain([0, effectiveMax])
+        .clamp(true);
+
+      console.log("Global raw max:", globalMaxRaw, "using effective max:", effectiveMax);
+
+
 
       // Create filter UI
       createFilterUI();
 
-      // Create initial bubbles (overall view)
+      // Create initial bubbles
       const initialData = aggregateData(data, 'overall');
-      createBubbles(initialData, false);
+      updateBubbles(initialData, true);
 
       // Set up Intersection Observer for scroll-triggered animation
       const observerOptions = {
@@ -470,9 +586,7 @@
       const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
           if (entry.isIntersecting && !hasAnimated) {
-            console.log("Bubble chart is visible, triggering animation!");
             triggerAnimation();
-            hasAnimated = true;
           }
         });
       }, observerOptions);
@@ -483,6 +597,5 @@
       console.error("Error loading dataset:", error);
     });
 
-    console.log("Drug bubble chart initialization complete!");
   }
 })();
