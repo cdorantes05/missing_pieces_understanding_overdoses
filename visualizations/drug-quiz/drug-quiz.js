@@ -189,7 +189,7 @@
       guessLayer.enter()
         .append("path")
         .merge(guessLayer)
-        .attr("fill", (_, i) => (i === 0 ? "#FF7B7B" : "transparent"))
+        .attr("fill", (_, i) => (i === 0 ? "#6bc5fdff" : "transparent"))
         .attr("stroke", "#fff")
         .attr("stroke-width", 2)
         .transition()

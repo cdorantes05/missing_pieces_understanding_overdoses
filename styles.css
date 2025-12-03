@@ -304,9 +304,9 @@
 
 #drug-bubble-filters {
   width: fit-content;
-  margin-left: auto;       /* pushes it to the right */
-  margin-right: 40px;      /* adjust how far right */
-  transform: translateY(-10px); /* move upward */
+  margin-left: 40px;       /* pushes it to the left */
+  margin-right: auto;      /* allows left alignment */
+  transform: translateY(30px); /* move downward */
 }
 
 #human-stories {
