@@ -1254,3 +1254,95 @@
   margin-right: -80px;
   padding: 10px !important;
 }
+
+/* ======================================================
+   WORKS CITED SECTION - CUTE & PROFESSIONAL
+   ====================================================== */
+
+.works-cited-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 0 2rem;
+}
+
+.citation-card {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.8rem;
+}
+
+.citation-card:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.25);
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+.citation-icon {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+  filter: grayscale(0.2);
+}
+
+.citation-card h3 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0;
+}
+
+.citation-card a {
+  color: #64B5F6;
+  text-decoration: none;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  transition: color 0.2s ease;
+}
+
+.citation-card a:hover {
+  color: #90CAF9;
+  text-decoration: underline;
+}
+
+.credits-footer {
+  text-align: center;
+  margin-top: 3rem;
+  padding-top: 2rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.credits-footer p {
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.7);
+  margin: 0.5rem 0;
+}
+
+.credits-footer p:first-child {
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 1.1rem;
+}
+
+@media (max-width: 768px) {
+  .works-cited-container {
+    grid-template-columns: 1fr;
+    padding: 0 1rem;
+  }
+  
+  .citation-card {
+    padding: 1.2rem;
+  }
+}
